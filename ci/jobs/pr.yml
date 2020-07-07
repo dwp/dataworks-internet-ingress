@@ -1,31 +1,31 @@
 jobs:
-  - name: dataworks-repo-template-terraform-pr
+  - name: dataworks-internet-ingress-pr
     plan:
-      - get: dataworks-repo-template-terraform-pr
+      - get: dataworks-internet-ingress-pr
         trigger: true
         version: every
-      - put: dataworks-repo-template-terraform-pr
+      - put: dataworks-internet-ingress-pr
         params:
-          path: dataworks-repo-template-terraform-pr
+          path: dataworks-internet-ingress-pr
           status: pending
         input_mapping:
-          dataworks-repo-template-terraform: dataworks-repo-template-terraform-pr
+          dataworks-internet-ingress: dataworks-internet-ingress-pr
       - .: (( inject meta.plan.terraform-bootstrap ))
         input_mapping:
-          dataworks-repo-template-terraform: dataworks-repo-template-terraform-pr
+          dataworks-internet-ingress: dataworks-internet-ingress-pr
       - .: (( inject meta.plan.terraform-plan ))
         input_mapping:
-          dataworks-repo-template-terraform: dataworks-repo-template-terraform-pr
+          dataworks-internet-ingress: dataworks-internet-ingress-pr
         params:
           TF_WORKSPACE: 'qa'
           DETAILED_EXITCODE: ''
         on_failure:
-          put: dataworks-repo-template-terraform-pr
+          put: dataworks-internet-ingress-pr
           params:
-            path: dataworks-repo-template-terraform-pr
+            path: dataworks-internet-ingress-pr
             status: failure
         on_success:
-          put: dataworks-repo-template-terraform-pr
+          put: dataworks-internet-ingress-pr
           params:
-            path: dataworks-repo-template-terraform-pr
+            path: dataworks-internet-ingress-pr
             status: success
