@@ -11,6 +11,34 @@ terraform {
   }
 }
 
+data "terraform_remote_state" "management_dns" {
+  backend   = "s3"
+  workspace = "management"
+
+  config = {
+    bucket         = "{{state_file_bucket}}"
+    key            = "terraform/dataworks/management.tfstate"
+    region         = "{{state_file_region}}"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:{{state_file_region}}:{{state_file_account}}:key/{{state_file_kms_key}}"
+    dynamodb_table = "remote_state_locks"
+  }
+}
+
+data "terraform_remote_state" "internet_egress" {
+  backend   = "s3"
+  workspace = terraform.workspace
+
+  config = {
+    bucket         = "{{state_file_bucket}}"
+    key            = "terraform/dataworks/aws-internet-egress.tfstate"
+    region         = "{{state_file_region}}"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:{{state_file_region}}:{{state_file_account}}:key/{{state_file_kms_key}}"
+    dynamodb_table = "remote_state_locks"
+  }
+}
+
 provider "aws" {
   version = "~> 2.66.0"
   region  = "eu-west-2"
@@ -20,15 +48,27 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  version = "~> 2.66.0"
+  region  = "{{state_file_region}}"
+  alias   = "management_dns"
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.account["management"]}:role/${var.assume_role}"
+  }
+}
+
 locals {
   name        = "dataworks-internet-ingress"
-  environment = terraform.workspace == "default" ? "development" : terraform.workspace
+  environment = terraform.workspace == "default" ? "management-dev" : terraform.workspace
 
   account = {
     {%- for key, value in accounts.items() %}
       {{key}} = "{{value}}"
     {%- endfor %}
   }
+
+  team_cidr_block = "{{ucfs.team_cidr_block}}"
 
   common_tags = {
     {%- for key, value in common_tags.items() %}
@@ -50,4 +90,7 @@ locals {
           {{ key }} = "{{ value }}"{% endfor %}
       } {%- endfor %}
   }
+}
+
+data "aws_availability_zones" "available" {
 }
