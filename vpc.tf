@@ -53,7 +53,7 @@ resource "aws_subnet" "reverse_proxy" {
   )
 }
 
-resource "aws_subnet" "reverse_proxy" {
+resource "aws_subnet" "ssh_bastion" {
   count             = length(data.aws_availability_zones.available.names)
   cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + length(aws_subnet.vpc_endpoint) + length(aws_subnet.internet_proxy))
   availability_zone = data.aws_availability_zones.available.names[count.index]
