@@ -176,11 +176,16 @@ resource "aws_acm_certificate" "reverse_proxy" {
   }
 }
 
+data "aws_route53_zone" "wip_zone" {
+  name         = "wip.dataworks.dwp.gov.uk."
+  private_zone = false
+}
+
 resource "aws_route53_record" "reverse_proxy_alb" {
   name = "reverse-proxy-alb.ui.ingest-hbase.dev"
   type = "A"
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
 
   alias {
     evaluate_target_health = true
@@ -195,7 +200,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
   name = aws_acm_certificate.reverse_proxy.domain_validation_options.0.resource_record_name
   type = aws_acm_certificate.reverse_proxy.domain_validation_options.0.resource_record_type
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
   records = [aws_acm_certificate.reverse_proxy.domain_validation_options.0.resource_record_value]
   ttl     = 60
   //provider = aws.management_dns
@@ -205,7 +210,7 @@ resource "aws_route53_record" "reverse_proxy_hbase_ui" {
   name = "hbase.ui.ingest-hbase.dev"
   type = "A"
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
 
   alias {
     evaluate_target_health = true
@@ -220,7 +225,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_hbase_record" {
   name = aws_acm_certificate.reverse_proxy.domain_validation_options.1.resource_record_name
   type = aws_acm_certificate.reverse_proxy.domain_validation_options.1.resource_record_type
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
   records = [aws_acm_certificate.reverse_proxy.domain_validation_options.1.resource_record_value]
   ttl     = 60
   //provider = aws.management_dns
@@ -230,7 +235,7 @@ resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
   name = "ganglia.ui.ingest-hbase.dev"
   type = "A"
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
 
   alias {
     evaluate_target_health = true
@@ -245,7 +250,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_ganglia_record"
   name = aws_acm_certificate.reverse_proxy.domain_validation_options.2.resource_record_name
   type = aws_acm_certificate.reverse_proxy.domain_validation_options.2.resource_record_type
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
   records = [aws_acm_certificate.reverse_proxy.domain_validation_options.2.resource_record_value]
   ttl     = 60
   //provider = aws.management_dns
@@ -255,7 +260,7 @@ resource "aws_route53_record" "reverse_proxy_nm_ui" {
   name = "nm.ui.ingest-hbase.dev"
   type = "A"
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
 
   alias {
     evaluate_target_health = true
@@ -270,7 +275,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_nm_record" {
   name = aws_acm_certificate.reverse_proxy.domain_validation_options.3.resource_record_name
   type = aws_acm_certificate.reverse_proxy.domain_validation_options.3.resource_record_type
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
   records = [aws_acm_certificate.reverse_proxy.domain_validation_options.3.resource_record_value]
   ttl     = 60
   //provider = aws.management_dns
@@ -280,7 +285,7 @@ resource "aws_route53_record" "reverse_proxy_rm_ui" {
   name = "rm.ui.ingest-hbase.dev"
   type = "A"
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
 
   alias {
     evaluate_target_health = true
@@ -295,7 +300,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_rm_record" {
   name = aws_acm_certificate.reverse_proxy.domain_validation_options.4.resource_record_name
   type = aws_acm_certificate.reverse_proxy.domain_validation_options.4.resource_record_type
   //zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  zone_id = "Z2SQITY115NIJK"
+  zone_id = data.aws_route53_zone.wip_zone.zone_id
   records = [aws_acm_certificate.reverse_proxy.domain_validation_options.4.resource_record_value]
   ttl     = 60
   //provider = aws.management_dns
