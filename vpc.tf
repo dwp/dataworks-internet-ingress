@@ -91,7 +91,7 @@ resource "aws_vpc_endpoint" "internet_proxy" {
   service_name        = data.terraform_remote_state.internet_egress.outputs.internet_proxy_service.service_name
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.internet_proxy_endpoint.id]
-  subnet_ids          = aws_subnet.internet_proxy.*.id
+  subnet_ids          = aws_subnet.vpc_endpoint.*.id
   private_dns_enabled = false
 }
 
