@@ -4,7 +4,7 @@ module "vpc" {
   vpc_name                                 = "internet-ingress"
   region                                   = var.region
   vpc_cidr_block                           = local.cidr_block[local.environment]["internet-ingress-vpc"]
-  interface_vpce_source_security_group_ids = [aws_security_group.reverse_proxy_instance.id]
+  interface_vpce_source_security_group_ids = local.reverse_proxy_enabled[local.environment] ? [aws_security_group.reverse_proxy_instance[0].id] : []
   interface_vpce_subnet_ids                = aws_subnet.reverse_proxy.*.id
   gateway_vpce_route_table_ids             = aws_route_table.reverse_proxy.*.id
 
@@ -37,7 +37,7 @@ resource "aws_subnet" "vpc_endpoint" {
 
   tags = merge(
     local.common_tags,
-    { Name = "reverse-proxy" }
+    { Name = "vpc-endpoint" }
   )
 }
 
@@ -93,24 +93,4 @@ resource "aws_vpc_endpoint" "internet_proxy" {
   security_group_ids  = [aws_security_group.internet_proxy_endpoint.id]
   subnet_ids          = aws_subnet.vpc_endpoint.*.id
   private_dns_enabled = false
-}
-
-resource "aws_security_group_rule" "egress_internet_proxy" {
-  description              = "Allow Internet access via the proxy"
-  type                     = "egress"
-  from_port                = 3128
-  to_port                  = 3128
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.internet_proxy_endpoint.id
-  security_group_id        = aws_security_group.reverse_proxy_instance.id
-}
-
-resource "aws_security_group_rule" "ingress_internet_proxy" {
-  description              = "Allow proxy access from app"
-  type                     = "ingress"
-  from_port                = 3128
-  to_port                  = 3128
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.reverse_proxy_instance.id
-  security_group_id        = aws_security_group.internet_proxy_endpoint.id
 }

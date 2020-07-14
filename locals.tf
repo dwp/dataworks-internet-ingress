@@ -4,8 +4,8 @@ locals {
     management     = "False"
   }
 
-  route53_zone_id_name = {
-    management-dev = "wip.dataworks.dwp.gov.uk."
-    management     = "dataworks.dwp.gov.uk."
+  reverse_proxy_enabled = {
+    management-dev = true
+    management     = false
   }
 }
