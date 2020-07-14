@@ -31,7 +31,7 @@ resource "aws_route_table" "reverse_proxy" {
 
 resource "aws_subnet" "vpc_endpoint" {
   count             = length(data.aws_availability_zones.available.names)
-  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 3, count.index)
+  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = module.vpc.vpc.id
 
@@ -43,7 +43,7 @@ resource "aws_subnet" "vpc_endpoint" {
 
 resource "aws_subnet" "internet_proxy" {
   count             = length(data.aws_availability_zones.available.names)
-  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 3, count.index + length(aws_subnet.vpc_endpoint))
+  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + length(aws_subnet.vpc_endpoint))
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = module.vpc.vpc.id
 
@@ -55,7 +55,7 @@ resource "aws_subnet" "internet_proxy" {
 
 resource "aws_subnet" "reverse_proxy" {
   count             = length(data.aws_availability_zones.available.names)
-  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 3, count.index + length(aws_subnet.vpc_endpoint) + length(aws_subnet.internet_proxy))
+  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + length(aws_subnet.vpc_endpoint) + length(aws_subnet.internet_proxy))
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = module.vpc.vpc.id
 
