@@ -4,11 +4,6 @@ locals {
     management     = "False"
   }
 
-  route53_zone_id_name = {
-    management-dev = "wip.dataworks.dwp.gov.uk."
-    management     = "dataworks.dwp.gov.uk."
-  }
-
   dns_prefix = {
     management-dev = "mgmt-dev"
     management     = "mgmt"
