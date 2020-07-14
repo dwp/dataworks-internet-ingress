@@ -1,5 +1,5 @@
 jobs:
-  - name: dataworks-internet-ingress-pr
+  - name: pull-request
     plan:
       - get: dataworks-internet-ingress-pr
         trigger: true
@@ -17,7 +17,7 @@ jobs:
         input_mapping:
           dataworks-internet-ingress: dataworks-internet-ingress-pr
         params:
-          TF_WORKSPACE: 'qa'
+          TF_WORKSPACE: 'management'
           DETAILED_EXITCODE: ''
         on_failure:
           put: dataworks-internet-ingress-pr

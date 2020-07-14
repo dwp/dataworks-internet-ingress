@@ -1,15 +1,9 @@
 jobs:
-  - name: qa
+  - name: management-dev
     max_in_flight: 1
     plan:
       - get: dataworks-internet-ingress
         trigger: true
-        passed:
-          - development
       - .: (( inject meta.plan.terraform-bootstrap ))
       - .: (( inject meta.plan.terraform-apply ))
-        params:
-          TF_WORKSPACE: 'qa'
       - .: (( inject meta.plan.terraform-plan ))
-        params:
-          TF_WORKSPACE: 'qa'
