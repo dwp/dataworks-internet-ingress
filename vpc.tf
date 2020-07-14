@@ -4,7 +4,7 @@ module "vpc" {
   vpc_name                                 = "internet-ingress"
   region                                   = var.region
   vpc_cidr_block                           = local.cidr_block[local.environment]["internet-ingress-vpc"]
-  interface_vpce_source_security_group_ids = [aws_security_group.reverse_proxy_instance.id]
+  interface_vpce_source_security_group_ids = [aws_security_group.reverse_proxy_instance[0].id]
   interface_vpce_subnet_ids                = aws_subnet.reverse_proxy.*.id
   gateway_vpce_route_table_ids             = aws_route_table.reverse_proxy.*.id
 
@@ -102,7 +102,7 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.internet_proxy_endpoint.id
-  security_group_id        = aws_security_group.reverse_proxy_instance.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
 }
 
 resource "aws_security_group_rule" "ingress_internet_proxy" {
@@ -111,6 +111,6 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   from_port                = 3128
   to_port                  = 3128
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.reverse_proxy_instance.id
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
   security_group_id        = aws_security_group.internet_proxy_endpoint.id
 }
