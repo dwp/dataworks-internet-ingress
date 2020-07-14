@@ -10,6 +10,28 @@ resource "aws_security_group" "reverse_proxy_lb" {
   }
 }
 
+resource "aws_security_group_rule" "egress_internet_proxy" {
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow Internet access via the proxy for reverse proxy"
+  type                     = "egress"
+  from_port                = 3128
+  to_port                  = 3128
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.internet_proxy_endpoint.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
+}
+
+resource "aws_security_group_rule" "ingress_internet_proxy" {
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow proxy access from reverse proxy"
+  type                     = "ingress"
+  from_port                = 3128
+  to_port                  = 3128
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  security_group_id        = aws_security_group.internet_proxy_endpoint.id
+}
+
 //resource "aws_security_group_rule" "reverse_proxy_lb_https_ingress" {
 //  description       = "Reverse Proxy HTTPS Rule"
 //  type              = "ingress"
