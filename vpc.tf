@@ -37,7 +37,7 @@ resource "aws_subnet" "vpc_endpoint" {
 
   tags = merge(
     local.common_tags,
-    { Name = "reverse-proxy" }
+    { Name = "vpc-endpoint" }
   )
 }
 
