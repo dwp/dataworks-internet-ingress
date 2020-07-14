@@ -118,10 +118,10 @@ resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
   condition {
     host_header {
       values = [
-        "hbase.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-        "ganglia.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-        "nm.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-        "rm.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk"
+        "hbase.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+        "ganglia.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+        "nm.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+        "rm.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk"
       ]
     }
   }
@@ -150,14 +150,14 @@ resource "aws_lb_target_group" "reverse_proxy" {
 }
 
 resource "aws_acm_certificate" "reverse_proxy" {
-  domain_name       = "ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk"
+  domain_name       = "ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk"
   validation_method = "DNS"
 
   subject_alternative_names = [
-    "hbase.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-    "ganglia.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-    "nm.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk",
-    "rm.ui.ingest-hbase.${local.environment}.dataworks.dwp.gov.uk"
+    "hbase.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+    "ganglia.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+    "nm.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk",
+    "rm.ui.ingest-hbase.${local.dns_prefix}.dataworks.dwp.gov.uk"
   ]
 
   tags = {
@@ -170,7 +170,7 @@ resource "aws_acm_certificate" "reverse_proxy" {
 }
 
 resource "aws_route53_record" "reverse_proxy_alb" {
-  name    = "reverse-proxy-alb.ui.ingest-hbase.${local.environment}"
+  name    = "reverse-proxy-alb.ui.ingest-hbase.${local.dns_prefix}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -193,7 +193,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
 }
 
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
-  name    = "hbase.ui.ingest-hbase.${local.environment}"
+  name    = "hbase.ui.ingest-hbase.${local.dns_prefix}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
