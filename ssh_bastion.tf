@@ -22,6 +22,7 @@ resource "aws_security_group_rule" "bastion_ssh_ingress" {
 }
 
 resource "aws_route_table" "ssh_bastion" {
+  count  = local.ssh_bastion_enabled[local.environment] ? 1 : 0
   vpc_id = module.vpc.vpc.id
 
   tags = merge(
@@ -30,10 +31,17 @@ resource "aws_route_table" "ssh_bastion" {
   )
 }
 
+resource "aws_route" "ssh_bastion_igw" {
+  count                  = local.ssh_bastion_enabled[local.environment] ? 1 : 0
+  route_table_id         = aws_route_table.ssh_bastion[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
+
 resource "aws_route_table_association" "ssh_bastion" {
-  count          = length(data.aws_availability_zones.available.names)
+  count          = local.ssh_bastion_enabled[local.environment] ? length(data.aws_availability_zones.available.names) : 0
   subnet_id      = aws_subnet.ssh_bastion.*.id[count.index]
-  route_table_id = aws_route_table.ssh_bastion.id
+  route_table_id = aws_route_table.ssh_bastion[0].id
 }
 
 data "aws_iam_policy_document" "ssh_bastion_assume_role" {
