@@ -177,7 +177,7 @@ resource "aws_acm_certificate" "reverse_proxy" {
 }
 
 data "aws_route53_zone" "wip_zone" {
-  name         = "wip.dataworks.dwp.gov.uk."
+  name         = local.route53_zone_id_name[local.environment]
   private_zone = false
 }
 
