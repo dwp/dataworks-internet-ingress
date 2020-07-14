@@ -61,7 +61,7 @@ resource "aws_subnet" "ssh_bastion" {
 
   tags = merge(
     local.common_tags,
-    { Name = "reverse-proxy" }
+    { Name = "ssh-bastion" }
   )
 }
 
