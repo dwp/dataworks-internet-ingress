@@ -5,7 +5,7 @@ resources:
       repository: dwp/dataworks-internet-ingress
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))
-    check_every: 1m
+    check_every: 720h
 
   - name: dataworks-internet-ingress
     type: git
@@ -14,4 +14,4 @@ resources:
       uri: https://github.com/dwp/dataworks-internet-ingress.git
       access_token: ((dataworks-secrets.concourse_github_pat))
     webhook_token: ((dataworks.concourse_github_webhook_token))
-    check_every: 5m
+    check_every: 720h
