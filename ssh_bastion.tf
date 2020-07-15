@@ -130,6 +130,7 @@ resource "aws_autoscaling_group" "ssh_bastion" {
   force_delete              = true
   launch_configuration      = aws_launch_configuration.ssh_bastion[0].name
   vpc_zone_identifier       = aws_subnet.ssh_bastion.*.id
+  target_group_arns         = [aws_lb_target_group.ssh_bastion[0].arn]
 
   dynamic "tag" {
     for_each = merge(
