@@ -18,6 +18,11 @@ locals {
     management     = true
   }
 
+  ssh_bastion_ssmenabled = {
+    management-dev = "True"
+    management     = "False"
+  }
+
   ssh_bastion_users              = jsondecode(data.aws_secretsmanager_secret_version.internet_ingress.secret_binary)["ssh_bastion_users"]
   ssh_bastion_whitelisted_ranges = jsondecode(data.aws_secretsmanager_secret_version.internet_ingress.secret_binary)["ssh_bastion_whitelisted_ranges"]
 }
