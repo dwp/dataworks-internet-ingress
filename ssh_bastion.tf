@@ -154,31 +154,31 @@ resource "aws_autoscaling_group" "ssh_bastion" {
   }
 }
 
-resource "aws_lb" "ssh_bastion" {
-  count              = local.ssh_bastion_enabled[local.environment] ? 1 : 0
-  name               = "ssh-bastion"
-  internal           = false
-  load_balancer_type = "network"
-  depends_on         = [aws_internet_gateway.igw]
+# resource "aws_lb" "ssh_bastion" {
+#   count              = local.ssh_bastion_enabled[local.environment] ? 1 : 0
+#   name               = "ssh-bastion"
+#   internal           = false
+#   load_balancer_type = "network"
+#   depends_on         = [aws_internet_gateway.igw]
 
-  subnet_mapping {
-    subnet_id     = aws_subnet.ssh_bastion[0].id
-    allocation_id = aws_eip.ssh_bastion[0].id
-  }
-  subnet_mapping {
-    subnet_id     = aws_subnet.ssh_bastion[1].id
-    allocation_id = aws_eip.ssh_bastion[1].id
-  }
-  subnet_mapping {
-    subnet_id     = aws_subnet.ssh_bastion[2].id
-    allocation_id = aws_eip.ssh_bastion[2].id
-  }
+#   subnet_mapping {
+#     subnet_id     = aws_subnet.ssh_bastion[0].id
+#     allocation_id = aws_eip.ssh_bastion[0].id
+#   }
+#   subnet_mapping {
+#     subnet_id     = aws_subnet.ssh_bastion[1].id
+#     allocation_id = aws_eip.ssh_bastion[1].id
+#   }
+#   subnet_mapping {
+#     subnet_id     = aws_subnet.ssh_bastion[2].id
+#     allocation_id = aws_eip.ssh_bastion[2].id
+#   }
 
-  tags = merge(
-    local.common_tags,
-    { Name = "ssh-bastion" }
-  )
-}
+#   tags = merge(
+#     local.common_tags,
+#     { Name = "ssh-bastion" }
+#   )
+# }
 
 resource "aws_lb_target_group" "ssh_bastion" {
   count       = local.ssh_bastion_enabled[local.environment] ? 1 : 0
@@ -203,17 +203,17 @@ resource "aws_lb_target_group" "ssh_bastion" {
   )
 }
 
-resource "aws_lb_listener" "ssh" {
-  count             = local.ssh_bastion_enabled[local.environment] ? 1 : 0
-  load_balancer_arn = aws_lb.ssh_bastion[0].arn
-  port              = 22
-  protocol          = "TCP"
+# resource "aws_lb_listener" "ssh" {
+#   count             = local.ssh_bastion_enabled[local.environment] ? 1 : 0
+#   load_balancer_arn = aws_lb.ssh_bastion[0].arn
+#   port              = 22
+#   protocol          = "TCP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ssh_bastion[0].arn
-  }
-}
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.ssh_bastion[0].arn
+#   }
+# }
 
 resource "aws_eip" "ssh_bastion" {
   count = 3
