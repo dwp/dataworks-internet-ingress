@@ -75,6 +75,7 @@ meta:
         inputs:
           - name: dataworks-internet-ingress
           - name: terraform-bootstrap
+          - name: dw-hardened-ami
       params:
         DETAILED_EXITCODE: -detailed-exitcode
 
