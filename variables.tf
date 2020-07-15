@@ -13,3 +13,8 @@ variable "region" {
   type    = string
   default = "eu-west-2"
 }
+
+variable "ssh_bastion_ami_id" {
+  type    = string
+  default = ""
+}

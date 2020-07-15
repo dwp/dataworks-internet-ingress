@@ -1,0 +1,12 @@
+#cloud-config
+cloud_final_modules:
+- "users-groups"
+- "always"
+
+users:
+%{ for user in users ~}
+- name: "${user.name}"
+  shell: "/bin/bash"
+  ssh-authorized-keys:
+  - "${user.ssh-pubkey}"
+%{ endfor ~}
