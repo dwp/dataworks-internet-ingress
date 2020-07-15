@@ -56,6 +56,7 @@ meta:
         inputs:
           - name: dataworks-internet-ingress
           - name: terraform-bootstrap
+          - name: dw-hardened-ami
     terraform-plan:
       task: terraform-plan
       .: (( inject meta.plan.terraform-common-config ))
