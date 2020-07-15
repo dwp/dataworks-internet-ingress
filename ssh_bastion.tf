@@ -21,6 +21,17 @@ resource "aws_security_group_rule" "bastion_ssh_ingress" {
   security_group_id = aws_security_group.ssh_bastion.0.id
 }
 
+resource "aws_security_group_rule" "bastion_nlb_healthcheck_ingress" {
+  count             = local.ssh_bastion_enabled[local.environment] ? 1 : 0
+  description       = "Allow LB Healthcheck access"
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = [module.vpc.vpc.cidr_block]
+  security_group_id = aws_security_group.ssh_bastion.0.id
+}
+
 resource "aws_route_table" "ssh_bastion" {
   count  = local.ssh_bastion_enabled[local.environment] ? 1 : 0
   vpc_id = module.vpc.vpc.id
@@ -111,9 +122,9 @@ resource "aws_launch_configuration" "ssh_bastion" {
 resource "aws_autoscaling_group" "ssh_bastion" {
   count                     = local.ssh_bastion_enabled[local.environment] ? 1 : 0
   name                      = aws_launch_configuration.ssh_bastion[0].name
-  min_size                  = 3
-  desired_capacity          = 3
-  max_size                  = 3
+  min_size                  = 0
+  desired_capacity          = 0
+  max_size                  = 0
   health_check_grace_period = 180
   health_check_type         = "EC2"
   force_delete              = true
