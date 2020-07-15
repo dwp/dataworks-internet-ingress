@@ -193,18 +193,3 @@ resource "aws_lb_listener" "ssh" {
     target_group_arn = aws_lb_target_group.ssh_bastion[0].arn
   }
 }
-
-
-//resource "aws_eip" "ssh_bastion" {
-//  count    = length(aws_instance.ssh_bastion.*.id)
-//  vpc      = true
-//  instance = aws_instance.ssh_bastion[count.index].id
-//
-//  tags = merge(
-//    local.common_tags,
-//    { Name = "ssh-bastion" }
-//  )
-//
-//  depends_on = [aws_internet_gateway.igw.id]
-//
-//}
