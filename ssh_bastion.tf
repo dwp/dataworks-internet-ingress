@@ -147,7 +147,6 @@ resource "aws_lb" "ssh_bastion" {
   name               = "ssh-bastion"
   internal           = false
   load_balancer_type = "network"
-  security_groups    = [aws_security_group.ssh_bastion[0].id]
   depends_on         = [aws_internet_gateway.igw]
   subnets = [aws_subnet.ssh_bastion[0].id,
     aws_subnet.ssh_bastion[1].id,
