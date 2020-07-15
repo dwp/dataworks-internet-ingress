@@ -4,6 +4,8 @@ jobs:
       - get: dataworks-internet-ingress-pr
         trigger: true
         version: every
+      - get: dw-hardened-ami
+        trigger: true
       - put: dataworks-internet-ingress-pr
         params:
           path: dataworks-internet-ingress-pr
