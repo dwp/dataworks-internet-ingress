@@ -4,6 +4,8 @@ jobs:
     plan:
       - get: dataworks-internet-ingress
         trigger: true
+      - get: dw-hardened-ami
+        trigger: true
       - .: (( inject meta.plan.terraform-bootstrap ))
       - .: (( inject meta.plan.terraform-apply ))
       - .: (( inject meta.plan.terraform-plan ))
