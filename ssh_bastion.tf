@@ -160,9 +160,19 @@ resource "aws_lb" "ssh_bastion" {
   internal           = false
   load_balancer_type = "network"
   depends_on         = [aws_internet_gateway.igw]
-  subnets = [aws_subnet.ssh_bastion[0].id,
-    aws_subnet.ssh_bastion[1].id,
-  aws_subnet.ssh_bastion[2].id]
+
+  subnet_mapping {
+    subnet_id     = aws_subnet.ssh_bastion[0].id
+    allocation_id = aws_eip.ssh_bastion[0].id
+  }
+  subnet_mapping {
+    subnet_id     = aws_subnet.ssh_bastion[1].id
+    allocation_id = aws_eip.ssh_bastion[1].id
+  }
+  subnet_mapping {
+    subnet_id     = aws_subnet.ssh_bastion[2].id
+    allocation_id = aws_eip.ssh_bastion[2].id
+  }
 
   tags = merge(
     local.common_tags,
@@ -203,4 +213,15 @@ resource "aws_lb_listener" "ssh" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ssh_bastion[0].arn
   }
+}
+
+resource "aws_eip" "ssh_bastion" {
+  count = 3
+  vpc   = true
+
+  tags = merge(
+    local.common_tags,
+    { Name = "ssh-bastion" }
+  )
+
 }
