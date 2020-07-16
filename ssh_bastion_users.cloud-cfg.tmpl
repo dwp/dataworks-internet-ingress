@@ -6,6 +6,7 @@ cloud_final_modules:
 users:
 %{ for user in users ~}
 - name: "${user.name}"
+  groups: sshusers
   shell: "/bin/bash"
   ssh-authorized-keys:
   - "${user.ssh-pubkey}"
