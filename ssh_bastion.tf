@@ -21,17 +21,6 @@ resource "aws_security_group_rule" "bastion_ssh_ingress" {
   security_group_id = aws_security_group.ssh_bastion.0.id
 }
 
-resource "aws_security_group_rule" "bastion_nlb_healthcheck_ingress" {
-  count             = local.ssh_bastion_enabled[local.environment] ? 1 : 0
-  description       = "Allow LB Healthcheck access"
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = [module.vpc.vpc.cidr_block]
-  security_group_id = aws_security_group.ssh_bastion.0.id
-}
-
 resource "aws_route_table" "ssh_bastion" {
   count  = local.ssh_bastion_enabled[local.environment] ? 1 : 0
   vpc_id = module.vpc.vpc.id
