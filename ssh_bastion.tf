@@ -120,6 +120,6 @@ resource "aws_route53_record" "ssh_bastion" {
   name     = "bastion.${local.dw_domain}"
   type     = "A"
   ttl      = "60"
-  records  = [aws_eip.ssh_bastion[0].private_ip]
+  records  = [aws_eip.ssh_bastion[0].public_ip]
   provider = aws.management_dns
 }
