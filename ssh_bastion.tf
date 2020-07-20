@@ -88,7 +88,7 @@ resource "aws_iam_instance_profile" "ssh_bastion" {
 }
 
 resource "aws_instance" "ssh_bastion" {
-  count                  = 1
+  count                  = local.ssh_bastion_enabled[local.environment] ? 1 : 0
   ami                    = var.ssh_bastion_ami_id
   instance_type          = "t2.medium"
   vpc_security_group_ids = [aws_security_group.ssh_bastion.0.id]
@@ -112,4 +112,14 @@ resource "aws_eip" "ssh_bastion" {
     { Name = "ssh-bastion" }
   )
 
+}
+
+resource "aws_route53_record" "ssh_bastion" {
+  count    = local.ssh_bastion_enabled[local.environment] ? 1 : 0
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  name     = "bastion.${local.dw_domain}"
+  type     = "A"
+  ttl      = "60"
+  records  = [aws_eip.ssh_bastion[0].private_ip]
+  provider = aws.management_dns
 }
