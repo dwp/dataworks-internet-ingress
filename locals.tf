@@ -25,4 +25,11 @@ locals {
 
   ssh_bastion_users              = jsondecode(data.aws_secretsmanager_secret_version.internet_ingress.secret_binary)["ssh_bastion_users"]
   ssh_bastion_whitelisted_ranges = jsondecode(data.aws_secretsmanager_secret_version.internet_ingress.secret_binary)["ssh_bastion_whitelisted_ranges"]
+
+  env_prefix = {
+    management-dev = "mgt-dev."
+    management     = "mgt."
+  }
+
+  dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"
 }
