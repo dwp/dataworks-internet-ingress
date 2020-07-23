@@ -7,17 +7,6 @@ module "vpc" {
   interface_vpce_source_security_group_ids = concat(local.reverse_proxy_enabled[local.environment] ? [aws_security_group.reverse_proxy_instance[0].id] : [], local.ssh_bastion_enabled[local.environment] ? [aws_security_group.ssh_bastion[0].id] : [])
   interface_vpce_subnet_ids                = aws_subnet.reverse_proxy.*.id
   gateway_vpce_route_table_ids             = aws_route_table.reverse_proxy.*.id
-
-  aws_vpce_services = [
-    "logs",
-    "s3",
-    "ec2",
-    "ec2messages",
-    "kms",
-    "monitoring",
-    "ssm",
-    "ssmmessages"
-  ]
 }
 
 resource "aws_route_table" "reverse_proxy" {
