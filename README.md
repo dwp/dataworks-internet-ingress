@@ -14,6 +14,11 @@ the Internet.
 The Internet Reverse Proxy Service provides a mechanism for accessing web user
 interfaces that are hosted within private subnets.
 
+Consumers of this service should establish network connectivity via a VPC
+Peering connection as per the diagram below
+
+![Reverse Proxy](docs/reverse-proxy.png)
+
 ## SSH Bastion Service
 
 The SSH Bastion Service provides SSH access to EC2 instances that are hosted
