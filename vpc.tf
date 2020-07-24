@@ -33,7 +33,8 @@ resource "aws_subnet" "vpc_endpoint" {
 
 resource "aws_subnet" "reverse_proxy" {
   count             = length(data.aws_availability_zones.available.names)
-  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + length(aws_subnet.vpc_endpoint))
+  // start after the vpc_endpoint subnets
+  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + 3)
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = module.vpc.vpc.id
 
@@ -45,7 +46,8 @@ resource "aws_subnet" "reverse_proxy" {
 
 resource "aws_subnet" "ssh_bastion" {
   count             = length(data.aws_availability_zones.available.names)
-  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + length(aws_subnet.vpc_endpoint) + length(aws_subnet.reverse_proxy))
+  // start after the reverse_proxy subnets
+  cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + 3 + 3)
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = module.vpc.vpc.id
 
