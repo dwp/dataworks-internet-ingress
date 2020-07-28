@@ -33,6 +33,7 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
+  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description       = "Reverse Proxy HTTP"
   type              = "ingress"
   protocol          = "tcp"
