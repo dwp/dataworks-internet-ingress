@@ -1,17 +1,5 @@
 #!/bin/bash
 
-export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d'"' -f4)
-export INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
-
-export http_proxy="${internet_proxy}"
-export HTTP_PROXY="$http_proxy"
-
-export https_proxy="${internet_proxy}"
-export HTTPS_PROXY="$https_proxy"
-
-export no_proxy="${no_proxy}"
-export NO_PROXY="${no_proxy}"
-
 # Some bits
 touch /var/log/rev-proxy.log
 
@@ -98,8 +86,8 @@ DEFAULT_NGINX_CFG
 
 cat > /etc/nginx/conf.d/reverse.conf <<"REVERSE_NGINX_CFG"
 # Custom log format to include the 'sub' claim in the REMOTE_USER field
-log_format main_jwt '$remote_addr - $jwt_claim_sub [$time_local] "$request" $status '
-                    '$body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
+#log_format main_jwt '$remote_addr - $jwt_claim_sub [$time_local] "$request" $status '
+#                    '$body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
 
 server {
     #include	 conf.d/openid_connect.server_conf;
@@ -112,10 +100,10 @@ server {
 
     location / {
         proxy_set_header Host $host;
-        proxy_pass http://{{TARGET_SERVER_IP}}/ganglia/;
+        #proxy_pass http://${target_ip}/ganglia/;
 	    access_log /var/log/nginx/access.log main;
 
-        #access_log /var/log/nginx/access.log main_jwt;
+        #access_log /var/log/nginx/access.log main;
         #auth_jwt "" token=$session_jwt;
         #error_page 401 = @do_oidc_flow;
         #set $oidc_jwt_keyfile ./.well-known/jwks.json;
@@ -134,7 +122,7 @@ server {
 
     location / {
         proxy_set_header Host $host;
-        proxy_pass http://{{TARGET_SERVER_IP}}:18080;
+        #proxy_pass http://${target_ip}:18080;
     }
 }
 REVERSE_NGINX_CFG
