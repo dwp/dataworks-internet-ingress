@@ -2,21 +2,35 @@
 
 ## DataWorks AWS Internet Ingress
 
-This repo contains Makefile and base terraform folders and jinja2 files to fit the standard pattern.
-This repo is a base to create new Terraform repos, renaming the template files and adding the githooks submodule, making the repo ready for use.
+Provides common-good services for accessing the DataWorks environments over
+the Internet.
 
-Running aviator will create the pipeline required on the AWS-Concourse instance, in order pass a mandatory CI ran status check.  this will likely require you to login to Concourse, if you haven't already.
+## Overview
 
-After cloning this repo, please generate `terraform.tf` and `terraform.tfvars` files:  
-`make bootstrap`
+![Infrastructure](docs/internet-ingress.png)
 
-In addition, you may want to do the following: 
+## Internet Reverse Proxy Service
 
-1. Create non-default Terraform workspaces as and if required:  
-    `make terraform-workspace-new workspace=<workspace_name>` e.g.  
-    ```make terraform-workspace-new workspace=qa```
+The Internet Reverse Proxy Service provides a mechanism for accessing web user
+interfaces that are hosted within private subnets.
 
-1. Configure Concourse CI pipeline:
-    1. Add/remove jobs in `./ci/jobs` as required 
-    1. Create CI pipeline:  
-`aviator`
+Consumers of this service should establish network connectivity via a VPC
+Peering connection as per the diagram below
+
+![Reverse Proxy](docs/reverse-proxy.png)
+
+## SSH Bastion Service
+
+The SSH Bastion Service provides SSH access to EC2 instances that are hosted
+within private subnets. As a rule, direct access to EC2 instances should be via
+AWS Systems Manager Session Manager (SSM). However, during an IT Health Check
+(ITHC) it has proved useful to allow the testers on to hosts via SSH. As such,
+the deployment of this service is guarded by `ssh_bastion_enabled` in
+[locals.tf](locals.tf). That setting must only be set to `true` if, and only if,
+an ITHC is being performed. SSH access is restricted to certain trusted networks
+via `ssh_bastion_whitelisted_ranges` in [locals.tf](locals.tf).
+
+There is no requirement for this service to be highly available as it is used
+so infrequently. In the unlikely even that the AZ hosting the SSH Bastion
+instance becomes unavailable during an ITHC then it can be trivially redeployed
+to a different AZ through a normal PR cycle.
