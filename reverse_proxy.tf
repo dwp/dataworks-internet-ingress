@@ -349,7 +349,6 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
     aws_route53_record.reverse_proxy_alb_cert_validation_nm_record[0].fqdn,
     aws_route53_record.reverse_proxy_alb_cert_validation_rm_record[0].fqdn
   ]
-  provider = aws.management_dns
 }
 
 data "aws_ami" "reverse_proxy_nginxplus" {
