@@ -30,6 +30,6 @@ terraform-workspace-new: ## Creates new Terraform workspace with Concourse remot
 	fly -t aws-concourse execute --config create-workspace.yml --input repo=. -v workspace="$(workspace)"
 .PHONY: git-hooks
 git-hooks: ## Set up hooks in .githooks
-	@git submodule update --init .githooks ; \
-	git config core.hooksPath .githooks \
+  @git submodule update --init .githooks ; \
+  git config core.hooksPath .githooks \
 

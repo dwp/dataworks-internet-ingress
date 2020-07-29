@@ -194,9 +194,9 @@ resource "aws_lb_target_group" "reverse_proxy" {
 }
 
 resource "aws_acm_certificate" "reverse_proxy" {
-  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  domain_name               = "ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
-  certificate_authority_arn = data.terraform_remote_state.certificate_authority.outputs.root_ca.arn
+  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  domain_name       = "ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
+  validation_method = "DNS"
 
   subject_alternative_names = [
     "hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
@@ -205,16 +205,9 @@ resource "aws_acm_certificate" "reverse_proxy" {
     "rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
   ]
 
-  options {
-    certificate_transparency_logging_preference = "DISABLED"
+  tags = {
+    Environment = local.environment
   }
-
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "reverse_proxy",
-    }
-  )
 
   lifecycle {
     ignore_changes = [subject_alternative_names]
@@ -236,6 +229,16 @@ resource "aws_route53_record" "reverse_proxy_alb" {
   provider = aws.management_dns
 }
 
+resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.0.resource_record_name
+  type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.0.resource_record_type
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  records  = [aws_acm_certificate.reverse_proxy[0].domain_validation_options.0.resource_record_value]
+  ttl      = 60
+  provider = aws.management_dns
+}
+
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name    = "hbase.ui.ingest-hbase.dev"
@@ -248,6 +251,16 @@ resource "aws_route53_record" "reverse_proxy_hbase_ui" {
     zone_id                = aws_alb.reverse_proxy[0].zone_id
   }
 
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_alb_cert_validation_hbase_record" {
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.1.resource_record_name
+  type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.1.resource_record_type
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  records  = [aws_acm_certificate.reverse_proxy[0].domain_validation_options.1.resource_record_value]
+  ttl      = 60
   provider = aws.management_dns
 }
 
@@ -266,6 +279,16 @@ resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
   provider = aws.management_dns
 }
 
+resource "aws_route53_record" "reverse_proxy_alb_cert_validation_ganglia_record" {
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.2.resource_record_name
+  type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.2.resource_record_type
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  records  = [aws_acm_certificate.reverse_proxy[0].domain_validation_options.2.resource_record_value]
+  ttl      = 60
+  provider = aws.management_dns
+}
+
 resource "aws_route53_record" "reverse_proxy_nm_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name    = "nm.ui.ingest-hbase.dev"
@@ -281,6 +304,16 @@ resource "aws_route53_record" "reverse_proxy_nm_ui" {
   provider = aws.management_dns
 }
 
+resource "aws_route53_record" "reverse_proxy_alb_cert_validation_nm_record" {
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.3.resource_record_name
+  type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.3.resource_record_type
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  records  = [aws_acm_certificate.reverse_proxy[0].domain_validation_options.3.resource_record_value]
+  ttl      = 60
+  provider = aws.management_dns
+}
+
 resource "aws_route53_record" "reverse_proxy_rm_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name    = "rm.ui.ingest-hbase.dev"
@@ -293,6 +326,29 @@ resource "aws_route53_record" "reverse_proxy_rm_ui" {
     zone_id                = aws_alb.reverse_proxy[0].zone_id
   }
 
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_alb_cert_validation_rm_record" {
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.4.resource_record_name
+  type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.4.resource_record_type
+  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+  records  = [aws_acm_certificate.reverse_proxy[0].domain_validation_options.4.resource_record_value]
+  ttl      = 60
+  provider = aws.management_dns
+}
+
+resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
+  count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
+  validation_record_fqdns = [
+    aws_route53_record.reverse_proxy_alb_cert_validation_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_nm_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_rm_record[0].fqdn
+  ]
   provider = aws.management_dns
 }
 
