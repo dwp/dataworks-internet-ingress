@@ -58,10 +58,8 @@ server {
         index  index.html index.htm;
     }
 
-    #error_page  404              /404.html;
-    # redirect server error pages to the static page /50x.html
-    #
-    error_page   500 502 503 504  /50x.html;
+    error_page  404              /404.html;
+    error_page  500 502 503 504  /50x.html;
     location = /50x.html {
         root   /usr/share/nginx/html;
     }
@@ -84,48 +82,65 @@ server {
 }
 DEFAULT_NGINX_CFG
 
-cat > /etc/nginx/conf.d/reverse.conf <<"REVERSE_NGINX_CFG"
-# Custom log format to include the 'sub' claim in the REMOTE_USER field
-#log_format main_jwt '$remote_addr - $jwt_claim_sub [$time_local] "$request" $status '
-#                    '$body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
-
+cat > /etc/nginx/conf.d/ganglia.conf <<"GANGLIA_NGINX_CFG"
 server {
-    #include	 conf.d/openid_connect.server_conf;
-
     listen       80;
     server_name  ganglia.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
 
-    error_log   /var/log/nginx/error.log debug;
-    access_log	/var/log/nginx/host.access.log main;
+    error_log   /var/log/nginx/ganglia-ui.error.log debug;
+    access_log	/var/log/nginx/ganglia-ui.access.log main;
 
     location / {
         proxy_set_header Host $host;
-        #proxy_pass http://${target_ip}/ganglia/;
-	    access_log /var/log/nginx/access.log main;
-
-        #access_log /var/log/nginx/access.log main;
-        #auth_jwt "" token=$session_jwt;
-        #error_page 401 = @do_oidc_flow;
-        #set $oidc_jwt_keyfile ./.well-known/jwks.json;
-        #auth_jwt_key_file $oidc_jwt_keyfile;
-        #auth_jwt_key_request /_jwks_uri;
-        #proxy_set_header username $jwt_claim_sub;
+        proxy_pass http://${target_ip}/ganglia/;
     }
 }
+GANGLIA_NGINX_CFG
 
+cat > /etc/nginx/conf.d/ganglia.conf <<"HBASE_NGINX_CFG"
 server {
     listen	80;
-    server_name	spark.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+    server_name	hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
 
-    error_log   /var/log/nginx/error.log debug;
-    access_log	/var/log/nginx/host.access.log main;
+    error_log   /var/log/nginx/hbase-ui.error.log debug;
+    access_log	/var/log/nginx/hbase-ui.access.log main;
 
     location / {
         proxy_set_header Host $host;
-        #proxy_pass http://${target_ip}:18080;
+        proxy_pass http://${target_ip}:16010;
     }
 }
-REVERSE_NGINX_CFG
+HBASE_NGINX_CFG
+
+cat > /etc/nginx/conf.d/ganglia.conf <<"NM_NGINX_CFG"
+server {
+    listen      80;
+    server_name nm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+
+    error_log   /var/log/nginx/nm-ui.error.log debug;
+    access_log  /var/log/nginx/nm-ui.access.log main;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_pass http://${target_ip}:8042;
+    }
+}
+NM_NGINX_CFG
+
+cat > /etc/nginx/conf.d/ganglia.conf <<"RM_NGINX_CFG"
+server {
+    listen      80;
+    server_name rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+
+    error_log   /var/log/nginx/rm-ui.error.log debug;
+    access_log  /var/log/nginx/rm-ui.access.log main;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_pass http://${target_ip}:8088;
+    }
+}
+RM_NGINX_CFG
 
 service nginx stop
 nginx -t >> /var/log/rev-proxy.log
