@@ -14,8 +14,8 @@ locals {
   }
 
   ssh_bastion_enabled = {
-    management-dev = true
-    management     = true
+    management-dev = false
+    management     = false
   }
 
   ssh_bastion_ssmenabled = {
