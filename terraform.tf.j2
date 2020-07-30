@@ -41,7 +41,7 @@ data "terraform_remote_state" "internet_egress" {
 
 data "terraform_remote_state" "ingest" {
   backend   = "s3"
-  workspace = terraform.workspace
+  workspace = terraform.workspace == "default" ? "default" : "production"
 
   config = {
     bucket         = "{{state_file_bucket}}"
