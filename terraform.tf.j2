@@ -39,8 +39,22 @@ data "terraform_remote_state" "internet_egress" {
   }
 }
 
+data "terraform_remote_state" "ingest" {
+  backend   = "s3"
+  workspace = terraform.workspace
+
+  config = {
+    bucket         = "{{state_file_bucket}}"
+    key            = "terraform/dataworks/aws-ingestion.tfstate"
+    region         = "{{state_file_region}}"
+    encrypt        = true
+    kms_key_id     = "arn:aws:kms:{{state_file_region}}:{{state_file_account}}:key/{{state_file_kms_key}}"
+    dynamodb_table = "remote_state_locks"
+  }
+}
+
 provider "aws" {
-  version = "~> 2.66.0"
+  version = "~> 2.68.0"
   region  = var.region
 
   assume_role {
@@ -49,7 +63,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  version = "~> 2.66.0"
+  version = "~> 2.68.0"
   region  = var.region
   alias   = "management_dns"
 
@@ -59,7 +73,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  version = "~> 2.66.0"
+  version = "~> 2.68.0"
   region  = var.region
   alias   = "development"
 
