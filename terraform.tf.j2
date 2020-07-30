@@ -75,10 +75,10 @@ provider "aws" {
 provider "aws" {
   version = "~> 2.68.0"
   region  = var.region
-  alias   = "development"
+  alias   = "target"
 
   assume_role {
-    role_arn = "arn:aws:iam::${local.account["development"]}:role/${var.assume_role}"
+    role_arn = "arn:aws:iam::${local.account[local.mgmt_account_mapping[local.environment]]}:role/${var.assume_role}"
   }
 }
 
