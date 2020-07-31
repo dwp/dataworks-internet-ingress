@@ -32,7 +32,7 @@ resource "aws_subnet" "vpc_endpoint" {
 }
 
 resource "aws_subnet" "ssh_bastion" {
-  count = length(data.aws_availability_zones.available.names)
+  count = local.ssh_bastion_enabled[local.environment] ? length(data.aws_availability_zones.available.names) : 0
   // start after the reverse_proxy subnets
   cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index + 3 + 3)
   availability_zone = data.aws_availability_zones.available.names[count.index]
