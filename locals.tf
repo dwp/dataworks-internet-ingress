@@ -18,6 +18,8 @@ locals {
     management     = true
   }
 
+  fqdn = "dataworks.dwp.gov.uk"
+
   ssh_bastion_enabled = {
     management-dev = false
     management     = false

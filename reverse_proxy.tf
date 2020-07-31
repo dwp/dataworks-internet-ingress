@@ -161,10 +161,10 @@ resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
   condition {
     host_header {
       values = [
-        "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-        "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-        "nm.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-        "rm.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk"
+        "${aws_route53_record.reverse_proxy_hbase_ui[0].name}.${local.fqdn}",
+        "${aws_route53_record.reverse_proxy_ganglia_ui[0].name}.${local.fqdn}",
+        "${aws_route53_record.reverse_proxy_nm_ui[0].name}.${local.fqdn}",
+        "${aws_route53_record.reverse_proxy_rm_ui[0].name}.${local.fqdn}",
       ]
     }
   }
@@ -194,15 +194,21 @@ resource "aws_lb_target_group" "reverse_proxy" {
 }
 
 resource "aws_acm_certificate" "reverse_proxy" {
+  # This depends_on exists to work around a problem with ordering that is
+  # fixed in AWS Provider v3.0.0.
+  depends_on = [aws_route53_record.reverse_proxy_hbase_ui,
+    aws_route53_record.reverse_proxy_ganglia_ui,
+    aws_route53_record.reverse_proxy_nm_ui,
+  aws_route53_record.reverse_proxy_rm_ui]
   count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  domain_name       = "ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk"
+  domain_name       = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
   validation_method = "DNS"
 
   subject_alternative_names = [
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+    "nm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+    "rm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
   ]
 
   tags = merge(
