@@ -36,5 +36,10 @@ locals {
     management     = "mgt."
   }
 
+  target_env = {
+    management-dev = ".dev"
+    management     = ""
+  }
+
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"
 }
