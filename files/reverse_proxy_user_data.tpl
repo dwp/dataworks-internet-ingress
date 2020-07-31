@@ -97,7 +97,7 @@ server {
 }
 GANGLIA_NGINX_CFG
 
-cat > /etc/nginx/conf.d/ganglia.conf <<"HBASE_NGINX_CFG"
+cat > /etc/nginx/conf.d/hbase.conf <<"HBASE_NGINX_CFG"
 server {
     listen	80;
     server_name	hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
@@ -112,7 +112,7 @@ server {
 }
 HBASE_NGINX_CFG
 
-cat > /etc/nginx/conf.d/ganglia.conf <<"NM_NGINX_CFG"
+cat > /etc/nginx/conf.d/nm.conf <<"NM_NGINX_CFG"
 server {
     listen      80;
     server_name nm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
@@ -127,7 +127,7 @@ server {
 }
 NM_NGINX_CFG
 
-cat > /etc/nginx/conf.d/ganglia.conf <<"RM_NGINX_CFG"
+cat > /etc/nginx/conf.d/rm.conf <<"RM_NGINX_CFG"
 server {
     listen      80;
     server_name rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
