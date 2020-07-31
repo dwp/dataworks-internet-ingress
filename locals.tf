@@ -15,7 +15,7 @@ locals {
 
   reverse_proxy_enabled = {
     management-dev = true
-    management     = false
+    management     = true
   }
 
   ssh_bastion_enabled = {
