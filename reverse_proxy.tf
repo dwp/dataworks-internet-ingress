@@ -205,9 +205,12 @@ resource "aws_acm_certificate" "reverse_proxy" {
     "rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
   ]
 
-  tags = {
-    Environment = local.environment
-  }
+  tags = merge(
+    local.common_tags,
+    { Name = "reverse-proxy",
+    Environment = local.environment },
+  )
+
 
   lifecycle {
     ignore_changes = [subject_alternative_names]
@@ -370,9 +373,13 @@ data "aws_ami" "reverse_proxy_nginxplus" {
 data "aws_instance" "target_instance" {
   filter {
     name   = "tag:Name"
-    values = ["ingest-hbase-fake-endpoint"]
+    values = ["ingest-hbase"]
   }
-  provider = aws.development
+  filter {
+    name   = "tag:reverse_proxy_target"
+    values = ["enabled"]
+  }
+  provider = aws.target
 }
 
 data "template_file" "reverse_proxy_user_data" {
@@ -380,7 +387,7 @@ data "template_file" "reverse_proxy_user_data" {
   template = file("files/reverse_proxy_user_data.tpl")
 
   vars = {
-    target_ip = data.aws_instance.target_instance.public_ip
+    target_ip = data.aws_instance.target_instance.private_ip
   }
 }
 
@@ -484,3 +491,142 @@ data "aws_iam_policy_document" "reverse_proxy_assume_role" {
   }
 }
 
+resource "aws_vpc_peering_connection" "reverse_proxy" {
+  count         = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  peer_owner_id = local.account[local.mgmt_account_mapping[local.environment]]
+  peer_vpc_id   = data.terraform_remote_state.ingest.outputs.ingestion_vpc.id
+  vpc_id        = module.vpc.vpc.id
+
+  tags = merge(
+    local.common_tags,
+    { Name = "reverse-proxy" }
+  )
+}
+
+resource "aws_route" "reverse_proxy_to_ingest" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? length(data.aws_availability_zones.available.names) : 0
+  route_table_id            = aws_route_table.reverse_proxy_private[count.index].id
+  destination_cidr_block    = data.terraform_remote_state.ingest.outputs.ingestion_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+}
+
+resource "aws_route" "ingest_to_reverse_proxy" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  route_table_id            = data.terraform_remote_state.ingest.outputs.emr_route_table.id
+  destination_cidr_block    = module.vpc.vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+  provider                  = aws.target
+}
+
+resource "aws_vpc_peering_connection_accepter" "reverse_proxy_ingest" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+  auto_accept               = true
+
+  tags = merge(
+    local.common_tags,
+    { Name = "reverse-proxy" }
+  )
+
+  provider = aws.target
+}
+
+resource "aws_security_group_rule" "egress_ganglia_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow nginx reverse proxy to reach Ganglia UI"
+  type                     = "egress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
+}
+
+resource "aws_security_group_rule" "ingress_ganglia_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow Ganglia UI to be reached by nginx reverse proxy"
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  provider                 = aws.target
+}
+
+resource "aws_security_group_rule" "egress_hbase_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow nginx reverse proxy to reach Hbase UI"
+  type                     = "egress"
+  from_port                = 16010
+  to_port                  = 16010
+  protocol                 = "tcp"
+  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
+}
+
+resource "aws_security_group_rule" "ingress_hbase_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow Hbase UI to be reached by nginx reverse proxy"
+  type                     = "ingress"
+  from_port                = 16010
+  to_port                  = 16010
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  provider                 = aws.target
+}
+
+resource "aws_security_group_rule" "egress_nm_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow nginx reverse proxy to reach Yarn NodeManager UI"
+  type                     = "egress"
+  from_port                = 8042
+  to_port                  = 8042
+  protocol                 = "tcp"
+  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
+}
+
+resource "aws_security_group_rule" "ingress_nm_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow Yarn NodeManager UI to be reached by nginx reverse proxy"
+  type                     = "ingress"
+  from_port                = 8042
+  to_port                  = 8042
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  provider                 = aws.target
+}
+
+resource "aws_security_group_rule" "egress_rm_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow nginx reverse proxy to reach Yarn ResourceManager UI"
+  type                     = "egress"
+  from_port                = 8088
+  to_port                  = 8088
+  protocol                 = "tcp"
+  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
+}
+
+resource "aws_security_group_rule" "ingress_rm_endpoint" {
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description              = "Allow Yarn ResourceManager UI to be reached by nginx reverse proxy"
+  type                     = "ingress"
+  from_port                = 8088
+  to_port                  = 8088
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+  provider                 = aws.target
+}

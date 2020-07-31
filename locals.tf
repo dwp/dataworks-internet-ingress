@@ -3,6 +3,11 @@ data "aws_secretsmanager_secret_version" "internet_ingress" {
 }
 
 locals {
+  mgmt_account_mapping = {
+    management-dev = "development"
+    management     = "production"
+  }
+
   reverse_proxy_ssmenabled = {
     management-dev = "True"
     management     = "False"
@@ -14,8 +19,8 @@ locals {
   }
 
   ssh_bastion_enabled = {
-    management-dev = true
-    management     = true
+    management-dev = false
+    management     = false
   }
 
   ssh_bastion_ssmenabled = {

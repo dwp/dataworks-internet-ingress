@@ -103,7 +103,7 @@ resource "aws_instance" "ssh_bastion" {
 }
 
 resource "aws_eip" "ssh_bastion" {
-  count    = length(aws_instance.ssh_bastion.*.id)
+  count    = local.ssh_bastion_enabled[local.environment] ? length(aws_instance.ssh_bastion.*.id) : 0
   vpc      = true
   instance = aws_instance.ssh_bastion[count.index].id
 
