@@ -15,7 +15,7 @@ locals {
 
   reverse_proxy_enabled = {
     management-dev = true
-    management     = false
+    management     = true
   }
 
   ssh_bastion_enabled = {
@@ -34,6 +34,11 @@ locals {
   env_prefix = {
     management-dev = "mgt-dev."
     management     = "mgt."
+  }
+
+  target_env = {
+    management-dev = ".dev"
+    management     = ""
   }
 
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"

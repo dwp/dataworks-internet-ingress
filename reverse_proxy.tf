@@ -161,10 +161,10 @@ resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
   condition {
     host_header {
       values = [
-        "hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-        "ganglia.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-        "nm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-        "rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
+        "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+        "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+        "nm.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+        "rm.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk"
       ]
     }
   }
@@ -195,14 +195,14 @@ resource "aws_lb_target_group" "reverse_proxy" {
 
 resource "aws_acm_certificate" "reverse_proxy" {
   count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  domain_name       = "ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
+  domain_name       = "ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk"
   validation_method = "DNS"
 
   subject_alternative_names = [
-    "hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-    "ganglia.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-    "nm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk",
-    "rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk"
+    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
+    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.dataworks.dwp.gov.uk",
   ]
 
   tags = merge(
@@ -219,7 +219,7 @@ resource "aws_acm_certificate" "reverse_proxy" {
 
 resource "aws_route53_record" "reverse_proxy_alb" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name    = "reverse-proxy-alb.ui.ingest-hbase.dev"
+  name    = "reverse-proxy-alb.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -244,7 +244,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
 
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name    = "hbase.ui.ingest-hbase.dev"
+  name    = "hbase.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -269,7 +269,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_hbase_record" {
 
 resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name    = "ganglia.ui.ingest-hbase.dev"
+  name    = "ganglia.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -294,7 +294,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_ganglia_record"
 
 resource "aws_route53_record" "reverse_proxy_nm_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name    = "nm.ui.ingest-hbase.dev"
+  name    = "nm.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -319,7 +319,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_nm_record" {
 
 resource "aws_route53_record" "reverse_proxy_rm_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name    = "rm.ui.ingest-hbase.dev"
+  name    = "rm.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -392,9 +392,8 @@ data "template_file" "reverse_proxy_user_data" {
 }
 
 resource "aws_launch_configuration" "reverse_proxy" {
-  count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name_prefix = "reverse-proxy-"
-  //  image_id             = data.aws_ami.reverse_proxy_nginxplus.image_id
+  count                = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name_prefix          = "reverse-proxy-"
   image_id             = "ami-086289e3240973ac7" // latest general-ami
   instance_type        = "t2.xlarge"
   security_groups      = [aws_security_group.reverse_proxy_instance[0].id]
