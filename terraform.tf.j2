@@ -54,7 +54,7 @@ data "terraform_remote_state" "ingest" {
 }
 
 provider "aws" {
-  version = "~> 2.70.1"
+  version = "~> 2.70.0"
   region  = var.region
 
   assume_role {
@@ -63,7 +63,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  version = "~> 2.70.1"
+  version = "~> 2.70.0"
   region  = var.region
   alias   = "management_dns"
 
@@ -73,7 +73,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  version = "~> 2.70.1"
+  version = "~> 2.70.0"
   region  = var.region
   alias   = "target"
 
