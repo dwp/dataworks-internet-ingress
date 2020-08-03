@@ -153,3 +153,43 @@ resource "aws_vpc_endpoint" "internet_proxy" {
   subnet_ids          = aws_subnet.vpc_endpoint.*.id
   private_dns_enabled = false
 }
+
+resource "aws_vpc_peering_connection" "reverse_proxy" {
+  count         = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  peer_owner_id = local.account[local.mgmt_account_mapping[local.environment]]
+  peer_vpc_id   = data.terraform_remote_state.ingest.outputs.ingestion_vpc.id
+  vpc_id        = module.vpc.vpc.id
+
+  tags = merge(
+    local.common_tags,
+    { Name = "reverse-proxy" }
+  )
+}
+
+resource "aws_route" "reverse_proxy_to_ingest" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? length(data.aws_availability_zones.available.names) : 0
+  route_table_id            = aws_route_table.reverse_proxy_private[count.index].id
+  destination_cidr_block    = data.terraform_remote_state.ingest.outputs.ingestion_vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+}
+
+resource "aws_route" "ingest_to_reverse_proxy" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  route_table_id            = data.terraform_remote_state.ingest.outputs.emr_route_table.id
+  destination_cidr_block    = module.vpc.vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+  provider                  = aws.target
+}
+
+resource "aws_vpc_peering_connection_accepter" "reverse_proxy_ingest" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+  auto_accept               = true
+
+  tags = merge(
+    local.common_tags,
+    { Name = "reverse-proxy" }
+  )
+
+  provider = aws.target
+}
