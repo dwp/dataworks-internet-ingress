@@ -1,11 +1,12 @@
 data "aws_instance" "target_instance" {
+  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   filter {
     name   = "tag:Name"
     values = ["ingest-hbase"]
   }
   filter {
     name   = "tag:reverse_proxy_target"
-    values = ["enabled"]
+    values = ["True"]
   }
   provider = aws.target
 }
@@ -15,7 +16,7 @@ data "template_file" "reverse_proxy_user_data" {
   template = file("files/reverse_proxy_user_data.tpl")
 
   vars = {
-    target_ip = data.aws_instance.target_instance.private_ip
+    target_ip = data.aws_instance.target_instance[0].private_ip
   }
 }
 
