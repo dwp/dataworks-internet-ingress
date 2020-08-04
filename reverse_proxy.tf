@@ -5,8 +5,8 @@ data "aws_instance" "target_instance" {
     values = ["ingest-hbase"]
   }
   filter {
-    name   = "tag:reverse_proxy_target"
-    values = ["True"]
+    name   = "tag:aws:elasticmapreduce:instance-group-role"
+    values = ["MASTER"]
   }
   provider = aws.target
 }
