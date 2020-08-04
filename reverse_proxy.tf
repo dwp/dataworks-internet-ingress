@@ -5,7 +5,7 @@ data "aws_instance" "target_instance" {
   }
   filter {
     name   = "tag:reverse_proxy_target"
-    values = ["enabled"]
+    values = ["True"]
   }
   provider = aws.target
 }
