@@ -16,7 +16,8 @@ data "template_file" "reverse_proxy_user_data" {
   template = file("files/reverse_proxy_user_data.tpl")
 
   vars = {
-    target_ip = data.aws_instance.target_instance[0].private_ip
+    target_ip     = data.aws_instance.target_instance[0].private_ip
+    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
   }
 }
 

@@ -85,7 +85,7 @@ DEFAULT_NGINX_CFG
 cat > /etc/nginx/conf.d/ganglia.conf <<"GANGLIA_NGINX_CFG"
 server {
     listen       80;
-    server_name  ganglia.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+    server_name  ganglia.${target_domain};
 
     error_log   /var/log/nginx/ganglia-ui.error.log debug;
     access_log	/var/log/nginx/ganglia-ui.access.log main;
@@ -100,7 +100,7 @@ GANGLIA_NGINX_CFG
 cat > /etc/nginx/conf.d/hbase.conf <<"HBASE_NGINX_CFG"
 server {
     listen	80;
-    server_name	hbase.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+    server_name	hbase.${target_domain};
 
     error_log   /var/log/nginx/hbase-ui.error.log debug;
     access_log	/var/log/nginx/hbase-ui.access.log main;
@@ -115,7 +115,7 @@ HBASE_NGINX_CFG
 cat > /etc/nginx/conf.d/nm.conf <<"NM_NGINX_CFG"
 server {
     listen      80;
-    server_name nm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+    server_name nm.${target_domain};
 
     error_log   /var/log/nginx/nm-ui.error.log debug;
     access_log  /var/log/nginx/nm-ui.access.log main;
@@ -130,7 +130,7 @@ NM_NGINX_CFG
 cat > /etc/nginx/conf.d/rm.conf <<"RM_NGINX_CFG"
 server {
     listen      80;
-    server_name rm.ui.ingest-hbase.dev.dataworks.dwp.gov.uk;
+    server_name rm.${target_domain};
 
     error_log   /var/log/nginx/rm-ui.error.log debug;
     access_log  /var/log/nginx/rm-ui.access.log main;
