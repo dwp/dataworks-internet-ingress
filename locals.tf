@@ -15,7 +15,7 @@ locals {
 
   reverse_proxy_enabled = {
     management-dev = true
-    management     = false
+    management     = true
   }
 
   fqdn = "dataworks.dwp.gov.uk"
