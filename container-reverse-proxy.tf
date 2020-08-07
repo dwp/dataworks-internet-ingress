@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "container_reverse_proxy_read_config" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.management.outputs.config_bucket.arn}/${local.ecs_nginx_rp_config_s3_main_prefix}/*",
+      "${data.terraform_remote_state.management.outputs.config_bucket.arn}/component/${local.ecs_nginx_rp_config_s3_main_prefix}/*",
     ]
   }
 
