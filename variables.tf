@@ -18,3 +18,7 @@ variable "ssh_bastion_ami_id" {
   type    = string
   default = ""
 }
+
+variable "reverse_proxy_http_port" {
+  default = 80
+}

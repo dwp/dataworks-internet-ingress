@@ -44,4 +44,7 @@ locals {
   }
 
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"
+
+  ecs_nginx_rp_config_s3_main_prefix = "container-reverse-proxy"
+
 }
