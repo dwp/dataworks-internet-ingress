@@ -13,7 +13,7 @@ terraform {
 
 data "terraform_remote_state" "management" {
   backend   = "s3"
-  workspace = "management"
+  workspace = terraform.workspace
 
   config = {
     bucket         = "{{state_file_bucket}}"
