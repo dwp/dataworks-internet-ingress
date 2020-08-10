@@ -50,9 +50,9 @@ resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
 resource "aws_lb_target_group" "reverse_proxy" {
   count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name        = "reverse-proxy"
-  port        = 80
+  port        = var.reverse_proxy_http_port
   protocol    = "HTTP"
-  target_type = "instance"
+  target_type = "ip"
   vpc_id      = module.vpc.vpc.id
 
   stickiness {
