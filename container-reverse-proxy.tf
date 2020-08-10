@@ -85,7 +85,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
 [
   {
     "image": "${local.account[local.environment]}.${module.vpc.ecr_dkr_domain_name}/nginx-s3:latest",
-    "name": "squid-s3",
+    "name": "nginx-s3",
     "networkMode": "awsvpc",
     "portMappings": [
       {
