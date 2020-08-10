@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "container_reverse_proxy_read_config" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.management.outputs.config_bucket.arn}/component/${local.ecs_nginx_rp_config_s3_main_prefix}/*",
+      "${data.terraform_remote_state.management.outputs.config_bucket.arn}/${local.ecs_nginx_rp_config_s3_main_prefix}/*",
     ]
   }
 
@@ -320,7 +320,7 @@ resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
 resource "aws_s3_bucket_object" "nginx_config" {
   count      = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id
-  key        = "component/${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files[0].output_md5}.zip"
+  key        = "${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files[0].output_md5}.zip"
   kms_key_id = data.terraform_remote_state.management.outputs.config_bucket.cmk_arn
   source     = data.archive_file.nginx_config_files[0].output_path
 }
