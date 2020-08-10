@@ -93,13 +93,13 @@ resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
   security_group_id = aws_security_group.reverse_proxy_lb[0].id
 }
 
-resource "aws_security_group_rule" "reverse_proxy_lb_http_egress_to_instance" {
+resource "aws_security_group_rule" "reverse_proxy_lb_http_egress_to_container" {
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Reverse Proxy HTTP Rule"
   type                     = "egress"
   protocol                 = "tcp"
   from_port                = "80"
   to_port                  = "80"
-  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
+  source_security_group_id = aws_security_group.reverse_proxy_ecs[0].id
   security_group_id        = aws_security_group.reverse_proxy_lb[0].id
 }
