@@ -124,7 +124,7 @@ DEFINITION
 
 resource "aws_ecs_service" "container_reverse_proxy" {
   count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name            = "container-reverse-proxy"
+  name            = local.ecs_nginx_rp_config_s3_main_prefix
   cluster         = data.terraform_remote_state.management.outputs.ecs_cluster_main.id
   task_definition = aws_ecs_task_definition.container_reverse_proxy[0].arn
   desired_count   = length(data.aws_availability_zones.available.names)
