@@ -317,6 +317,17 @@ resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
   security_group_id = aws_security_group.reverse_proxy_ecs[0].id
 }
 
+resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
+  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  description       = "Allow HTTPS outbound requests to S3 PFL from reverse-proxy container"
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = "443"
+  to_port           = "443"
+  prefix_list_ids   = [module.vpc.prefix_list_ids.s3]
+  security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+}
+
 resource "aws_s3_bucket_object" "nginx_config" {
   count      = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id

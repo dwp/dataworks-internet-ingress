@@ -7,3 +7,5 @@
 
 terraform.tf
 aviator_pipeline.yml
+files/reverse_proxy/nginx_conf.zip
+
