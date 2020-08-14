@@ -22,3 +22,7 @@ variable "ssh_bastion_ami_id" {
 variable "reverse_proxy_http_port" {
   default = 80
 }
+
+variable "reverse_proxy_https_port" {
+  default = 443
+}

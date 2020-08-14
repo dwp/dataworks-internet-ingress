@@ -136,9 +136,15 @@ resource "aws_ecs_service" "container_reverse_proxy" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.reverse_proxy[0].arn
+    target_group_arn = aws_lb_target_group.reverse_proxy_http[0].arn
     container_name   = "nginx-s3"
     container_port   = var.reverse_proxy_http_port
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.reverse_proxy_https[0].arn
+    container_name   = "nginx-s3"
+    container_port   = var.reverse_proxy_https_port
   }
 }
 
