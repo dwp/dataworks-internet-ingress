@@ -71,9 +71,9 @@ resource "aws_cloudwatch_log_group" "reverse_proxy_ecs" {
   tags              = local.common_tags
 }
 
-resource "aws_ecs_task_definition" "container_reverse_proxy" {
+resource "aws_ecs_task_definition" "container_reverse_proxy_http" {
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  family                   = "nginx-s3"
+  family                   = "nginx-s3-http"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
@@ -85,7 +85,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
 [
   {
     "image": "${local.account[local.environment]}.${module.vpc.ecr_dkr_domain_name}/nginx-s3:latest",
-    "name": "nginx-s3",
+    "name": "nginx-s3-http",
     "networkMode": "awsvpc",
     "portMappings": [
       {
@@ -97,7 +97,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
       "options": {
         "awslogs-group": "${aws_cloudwatch_log_group.reverse_proxy_ecs[0].name}",
         "awslogs-region": "${data.aws_region.current.name}",
-        "awslogs-stream-prefix": "${local.ecs_nginx_rp_config_s3_main_prefix}"
+        "awslogs-stream-prefix": "${local.ecs_nginx_rp_config_s3_main_prefix}-http"
       }
     },
     "placementStrategy": [
@@ -122,31 +122,96 @@ DEFINITION
 
 }
 
-resource "aws_ecs_service" "container_reverse_proxy" {
+resource "aws_ecs_service" "container_reverse_proxy_http" {
   count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  name            = local.ecs_nginx_rp_config_s3_main_prefix
+  name            = "${local.ecs_nginx_rp_config_s3_main_prefix}-http"
   cluster         = data.terraform_remote_state.management.outputs.ecs_cluster_main.id
-  task_definition = aws_ecs_task_definition.container_reverse_proxy[0].arn
+  task_definition = aws_ecs_task_definition.container_reverse_proxy_http[0].arn
   desired_count   = length(data.aws_availability_zones.available.names)
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups = [aws_security_group.reverse_proxy_ecs[0].id]
+    security_groups = [aws_security_group.reverse_proxy_ecs[0].id] //fix this SG common/HTTP/HTTPS
     subnets         = aws_subnet.reverse_proxy_private.*.id
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.reverse_proxy_http[0].arn
-    container_name   = "nginx-s3"
-    container_port   = var.reverse_proxy_http_port
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.reverse_proxy_https[0].arn
-    container_name   = "nginx-s3"
-    container_port   = var.reverse_proxy_https_port
+    target_group_arn = aws_lb_target_group.reverse_proxy[0].arn
+    container_name   = "nginx-s3-http"
+    container_port   = "80"
   }
 }
+
+//resource "aws_ecs_task_definition" "container_reverse_proxy_https" {
+//  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+//  family                   = "nginx-s3-https"
+//  network_mode             = "awsvpc"
+//  requires_compatibilities = ["FARGATE"]
+//  cpu                      = "512"
+//  memory                   = "4096"
+//  task_role_arn            = aws_iam_role.container_reverse_proxy[0].arn
+//  execution_role_arn       = data.terraform_remote_state.management.outputs.ecs_task_execution_role.arn
+//
+//  container_definitions = <<DEFINITION
+//[
+//  {
+//    "image": "${local.account[local.environment]}.${module.vpc.ecr_dkr_domain_name}/nginx-s3:latest",
+//    "name": "nginx-s3-https",
+//    "networkMode": "awsvpc",
+//    "portMappings": [
+//      {
+//        "containerPort": ${var.reverse_proxy_https_port}
+//      }
+//    ],
+//    "logConfiguration": {
+//      "logDriver": "awslogs",
+//      "options": {
+//        "awslogs-group": "${aws_cloudwatch_log_group.reverse_proxy_ecs[0].name}",
+//        "awslogs-region": "${data.aws_region.current.name}",
+//        "awslogs-stream-prefix": "${local.ecs_nginx_rp_config_s3_main_prefix}-https"
+//      }
+//    },
+//    "placementStrategy": [
+//      {
+//        "field": "attribute:ecs.availability-zone",
+//        "type": "spread"
+//      }
+//    ],
+//    "environment": [
+//      {
+//        "name": "NGINX_CONFIG_S3_BUCKET",
+//        "value": "${data.terraform_remote_state.management.outputs.config_bucket.id}"
+//      },
+//      {
+//        "name": "NGINX_CONFIG_S3_KEY",
+//        "value": "${aws_s3_bucket_object.nginx_config[0].key}"
+//      }
+//    ]
+//  }
+//]
+//DEFINITION
+//
+//}
+//
+//resource "aws_ecs_service" "container_reverse_proxy_https" {
+//  count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+//  name            = "${local.ecs_nginx_rp_config_s3_main_prefix}-https"
+//  cluster         = data.terraform_remote_state.management.outputs.ecs_cluster_main.id
+//  task_definition = aws_ecs_task_definition.container_reverse_proxy_https[0].arn
+//  desired_count   = length(data.aws_availability_zones.available.names)
+//  launch_type     = "FARGATE"
+//
+//  network_configuration {
+//    security_groups = [aws_security_group.reverse_proxy_ecs[0].id] //fix this SG common/HTTP/HTTPS
+//    subnets         = aws_subnet.reverse_proxy_private.*.id
+//  }
+//
+//  load_balancer {
+//    target_group_arn = aws_lb_target_group.reverse_proxy_https[0].arn
+//    container_name   = "nginx-s3-https"
+//    container_port   = var.reverse_proxy_https_port
+//  }
+//}
 
 resource "aws_security_group" "reverse_proxy_ecs" {
   count                  = local.reverse_proxy_enabled[local.environment] ? 1 : 0
@@ -301,7 +366,7 @@ resource "aws_security_group_rule" "reverse_proxy_http_egress" {
   security_group_id        = aws_security_group.reverse_proxy_ecs[0].id
 }
 
-resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
+resource "aws_security_group_rule" "vpc_endpoint_http_ingress" {
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow inbound requests to VPC endpoints (HTTP) from reverse-proxy container"
   type                     = "ingress"

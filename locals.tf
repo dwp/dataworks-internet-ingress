@@ -46,5 +46,6 @@ locals {
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"
 
   ecs_nginx_rp_config_s3_main_prefix = "reverse-proxy"
+  user_pool_main_domain              = data.terraform_remote_state.aws_concourse.outputs.cognito.user_pool_main_domain.domain
 
 }
