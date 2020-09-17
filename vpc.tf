@@ -1,6 +1,6 @@
 module "vpc" {
   source                                   = "dwp/vpc/aws"
-  version                                  = "3.0.7"
+  version                                  = "3.0.8"
   vpc_name                                 = "internet-ingress"
   region                                   = var.region
   vpc_cidr_block                           = local.cidr_block[local.environment]["internet-ingress-vpc"]
