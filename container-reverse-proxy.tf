@@ -8,6 +8,10 @@ data "aws_instance" "target_instance" {
     name   = "tag:aws:elasticmapreduce:instance-group-role"
     values = ["MASTER"]
   }
+  filter {
+    name   = "tag:reverse_proxy_target"
+    values = ["True"]
+  }
   provider = aws.target
 }
 
