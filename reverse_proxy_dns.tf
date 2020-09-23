@@ -34,14 +34,10 @@ resource "aws_acm_certificate" "reverse_proxy" {
 }
 
 resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
-  count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  count           = local.reverse_proxy_enabled[local.environment] ? length(aws_route53_record.reverse_proxy_alb_cert_validation_record) : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
-    aws_route53_record.reverse_proxy_alb_cert_validation_record[0].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_nm_record[0].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_rm_record[0].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record[0].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record[0].fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_record[count.index].fqdn
   ]
 }
 
