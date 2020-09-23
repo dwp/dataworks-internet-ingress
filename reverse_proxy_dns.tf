@@ -47,8 +47,8 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation_master_
   count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
-    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_1.fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_1.fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_1[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_1[0].fqdn
   ]
 }
 
@@ -56,8 +56,8 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation_master_
   count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
-    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_2.fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_2.fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_2[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_2[0].fqdn
   ]
 }
 
@@ -65,8 +65,8 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation_master_
   count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
-    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_3.fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_3.fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record_master_3[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record_master_3[0].fqdn
   ]
 }
 
