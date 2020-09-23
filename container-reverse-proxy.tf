@@ -341,7 +341,7 @@ resource "aws_s3_bucket_object" "nginx_config" {
 }
 
 data "archive_file" "nginx_config_files" {
-  count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  count       = local.reverse_proxy_enabled[local.environment] ? data.aws_instance.target_instance.count : 0
   type        = "zip"
   output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
   source {
@@ -354,29 +354,29 @@ data "archive_file" "nginx_config_files" {
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/ganglia.conf.tpl", {
-      target_ip     = data.aws_instance.target_instance[0].private_ip
-      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
+      target_ip     = data.aws_instance.target_instance[count.index].private_ip
+      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
     })
     filename = "conf.d/ganglia.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/hbase.conf.tpl", {
-      target_ip     = data.aws_instance.target_instance[0].private_ip
-      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
+      target_ip     = data.aws_instance.target_instance[count.index].private_ip
+      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
     })
     filename = "conf.d/hbase.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/nm.conf.tpl", {
-      target_ip     = data.aws_instance.target_instance[0].private_ip
-      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
+      target_ip     = data.aws_instance.target_instance[count.index].private_ip
+      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
     })
     filename = "conf.d/nm.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/rm.conf.tpl", {
-      target_ip     = data.aws_instance.target_instance[0].private_ip
-      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
+      target_ip     = data.aws_instance.target_instance[count.index].private_ip
+      target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
     })
     filename = "conf.d/rm.conf"
   }
