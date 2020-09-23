@@ -12,17 +12,13 @@ resource "aws_acm_certificate" "reverse_proxy" {
 
   subject_alternative_names = [
     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
-    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
-    "nm.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
-    "rm.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
-    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
-    "nm.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
-    "rm.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
+    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
+    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
     "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
-    "nm.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
-    "rm.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
+    "nm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+    "rm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
   ]
 
   tags = merge(
@@ -41,7 +37,9 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
   count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
-    aws_route53_record.reverse_proxy_alb_cert_validation_record[0].fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_nm_record[0].fqdn,
+    aws_route53_record.reverse_proxy_alb_cert_validation_rm_record[0].fqdn
   ]
 }
 
@@ -50,9 +48,7 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation_masters
   certificate_arn = aws_acm_certificate.reverse_proxy[count.index].arn
   validation_record_fqdns = [
     aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record[count.index].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record[count.index].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_nm_record[count.index].fqdn,
-    aws_route53_record.reverse_proxy_alb_cert_validation_rm_record[count.index].fqdn
+    aws_route53_record.reverse_proxy_alb_cert_validation_ganglia_record[count.index].fqdn
   ]
 }
 
@@ -132,8 +128,8 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_ganglia_record"
 }
 
 resource "aws_route53_record" "reverse_proxy_nm_ui" {
-  count   = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
-  name    = "nm.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}"
+  count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name    = "nm.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -147,7 +143,7 @@ resource "aws_route53_record" "reverse_proxy_nm_ui" {
 }
 
 resource "aws_route53_record" "reverse_proxy_alb_cert_validation_nm_record" {
-  count    = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.3.resource_record_name
   type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.3.resource_record_type
   zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
@@ -157,8 +153,8 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_nm_record" {
 }
 
 resource "aws_route53_record" "reverse_proxy_rm_ui" {
-  count   = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
-  name    = "rm.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}"
+  count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  name    = "rm.ui.ingest-hbase${local.target_env[local.environment]}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -172,7 +168,7 @@ resource "aws_route53_record" "reverse_proxy_rm_ui" {
 }
 
 resource "aws_route53_record" "reverse_proxy_alb_cert_validation_rm_record" {
-  count    = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.4.resource_record_name
   type     = aws_acm_certificate.reverse_proxy[0].domain_validation_options.4.resource_record_type
   zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id

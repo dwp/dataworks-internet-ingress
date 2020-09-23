@@ -334,39 +334,47 @@ resource "aws_s3_bucket_object" "nginx_config" {
 }
 
 resource "local_file" "ganglia_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content = templatefile("${path.module}/files/reverse_proxy/ganglia.conf.tpl", {
-    target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
-    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
+    target_ip_1     = data.aws_instances.target_instance[0].private_ips[0]
+    target_domain_1 = "ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}"
+    target_ip_2     = data.aws_instances.target_instance[0].private_ips[1]
+    target_domain_2 = "ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}"
+    target_ip_3     = data.aws_instances.target_instance[0].private_ips[2]
+    target_domain_3 = "ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}"
   })
-  filename = "${path.module}/files/reverse_proxy/output/conf.d/ganglia-master${count.index}.conf"
+  filename = "${path.module}/files/reverse_proxy/output/conf.d/ganglia.conf"
 }
 
 resource "local_file" "hbase_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content = templatefile("${path.module}/files/reverse_proxy/hbase.conf.tpl", {
-    target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
-    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
+    target_ip_1     = data.aws_instances.target_instance[0].private_ips[0]
+    target_domain_1 = "ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}"
+    target_ip_2     = data.aws_instances.target_instance[0].private_ips[1]
+    target_domain_2 = "ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}"
+    target_ip_3     = data.aws_instances.target_instance[0].private_ips[2]
+    target_domain_3 = "ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}"
   })
-  filename = "${path.module}/files/reverse_proxy/output/conf.d/hbase-master${count.index}.conf"
+  filename = "${path.module}/files/reverse_proxy/output/conf.d/hbase.conf"
 }
 
-resource "local_file" "nm_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+data "local_file" "nm_config" {
+  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content = templatefile("${path.module}/files/reverse_proxy/nm.conf.tpl", {
-    target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
-    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
+    target_ip     = data.aws_instances.target_instance[0].private_ips[0]
+    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
   })
-  filename = "${path.module}/files/reverse_proxy/output/conf.d/nm-master${count.index}.conf"
+  filename = "${path.module}/files/reverse_proxy/output/conf.d/nm.conf"
 }
 
-resource "local_file" "rm_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+data "local_file" "rm_config" {
+  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content = templatefile("${path.module}/files/reverse_proxy/rm.conf.tpl", {
-    target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
-    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
+    target_ip     = data.aws_instances.target_instance[0].private_ips[0]
+    target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
   })
-  filename = "${path.module}/files/reverse_proxy/output/conf.d/rm-master${count.index}.conf"
+  filename = "${path.module}/files/reverse_proxy/output/conf.d/rm.conf"
 }
 
 resource "local_file" "default_config" {
