@@ -334,7 +334,7 @@ resource "aws_s3_bucket_object" "nginx_config" {
 }
 
 resource "local_file" "ganglia_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0]private_ips) : 0
+  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
   content = templatefile("${path.module}/files/reverse_proxy/ganglia.conf.tpl", {
     target_ip     = data.aws_instances.target_instance.private_ips[count.index]
     target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
