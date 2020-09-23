@@ -34,7 +34,7 @@ resource "aws_acm_certificate" "reverse_proxy" {
 }
 
 resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
-  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
   validation_record_fqdns = [
     aws_route53_record.reverse_proxy_alb_cert_validation_record[0].fqdn,
@@ -44,7 +44,7 @@ resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation_masters" {
-  count = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
+  count           = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
   certificate_arn = aws_acm_certificate.reverse_proxy[count.index].arn
   validation_record_fqdns = [
     aws_route53_record.reverse_proxy_alb_cert_validation_hbase_record[count.index].fqdn,
