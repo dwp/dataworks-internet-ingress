@@ -72,7 +72,7 @@ resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
 
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
-  name    = "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}"
+  name    = "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
@@ -87,7 +87,7 @@ resource "aws_route53_record" "reverse_proxy_hbase_ui" {
 
 resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
-  name    = "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}"
+  name    = "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
