@@ -341,7 +341,7 @@ resource "aws_s3_bucket_object" "nginx_config" {
 }
 
 data "archive_file" "nginx_config_files" {
-  count       = local.reverse_proxy_enabled[local.environment] ? data.aws_instance.target_instance.count : 0
+  count       = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instance.target_instance) : 0
   type        = "zip"
   output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
   source {
