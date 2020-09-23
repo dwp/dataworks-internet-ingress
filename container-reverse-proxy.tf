@@ -382,7 +382,7 @@ resource "local_file" "nginx_config" {
 }
 
 data "archive_file" "nginx_config_files" {
-  count       = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance) : 0
+  count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   type        = "zip"
   output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
   source_dir  = "${path.module}/files/reverse_proxy/output/"
