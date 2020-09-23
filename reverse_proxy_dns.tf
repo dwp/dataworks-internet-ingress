@@ -61,7 +61,6 @@ resource "aws_route53_record" "reverse_proxy_alb" {
 }
 
 resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
-  count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   for_each = {
     for dvo in aws_acm_certificate.reverse_proxy[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
