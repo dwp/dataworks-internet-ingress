@@ -339,7 +339,7 @@ resource "local_file" "ganglia_config" {
     target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
     target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
   })
-  filename = "conf.d/ganglia-master${count.index}.conf"
+  filename = "${path.module}/temp/conf.d/ganglia-master${count.index}.conf"
 }
 
 resource "local_file" "hbase_config" {
@@ -348,7 +348,7 @@ resource "local_file" "hbase_config" {
     target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
     target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
   })
-  filename = "conf.d/hbase-master${count.index}.conf"
+  filename = "${path.module}/temp/conf.d/hbase-master${count.index}.conf"
 }
 
 resource "local_file" "nm_config" {
@@ -357,7 +357,7 @@ resource "local_file" "nm_config" {
     target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
     target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
   })
-  filename = "conf.d/nm-master${count.index}.conf"
+  filename = "${path.module}/temp/conf.d/nm-master${count.index}.conf"
 }
 
 resource "local_file" "rm_config" {
@@ -366,24 +366,24 @@ resource "local_file" "rm_config" {
     target_ip     = data.aws_instances.target_instance[0].private_ips[count.index]
     target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.master${count.index}.${local.fqdn}"
   })
-  filename = "conf.d/rm-master${count.index}.conf"
+  filename = "${path.module}/temp/conf.d/rm-master${count.index}.conf"
 }
 
 resource "local_file" "default_config" {
   count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content  = templatefile("${path.module}/files/reverse_proxy/default.conf.tpl", {})
-  filename = "conf.d/default.conf"
+  filename = "${path.module}/temp/conf.d/default.conf"
 }
 
 resource "local_file" "nginx_config" {
   count    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   content  = templatefile("${path.module}/files/reverse_proxy/nginx.conf.tpl", {})
-  filename = "nginx.conf"
+  filename = "${path.module}/temp/nginx.conf"
 }
 
 data "archive_file" "nginx_config_files" {
   count       = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance) : 0
   type        = "zip"
   output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
-  source_dir  = "/"
+  source_dir  = "${path.module}/temp/"
 }
