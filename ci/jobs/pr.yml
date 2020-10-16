@@ -10,8 +10,6 @@ jobs:
         params:
           path: dataworks-internet-ingress-pr
           status: pending
-        input_mapping:
-          dataworks-internet-ingress: dataworks-internet-ingress-pr
       - .: (( inject meta.plan.terraform-bootstrap ))
         input_mapping:
           dataworks-internet-ingress: dataworks-internet-ingress-pr
