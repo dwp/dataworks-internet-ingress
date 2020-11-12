@@ -148,7 +148,7 @@ resource "aws_security_group" "reverse_proxy_ecs" {
 
 
 resource "aws_security_group_rule" "egress_ganglia_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow nginx reverse proxy container to reach Ganglia UI"
   type                     = "egress"
@@ -160,7 +160,7 @@ resource "aws_security_group_rule" "egress_ganglia_endpoint" {
 }
 
 resource "aws_security_group_rule" "ingress_ganglia_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow Ganglia UI to be reached by nginx reverse proxy container"
   type                     = "ingress"
@@ -173,7 +173,7 @@ resource "aws_security_group_rule" "ingress_ganglia_endpoint" {
 }
 
 resource "aws_security_group_rule" "egress_hbase_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow nginx reverse proxy container to reach Hbase UI"
   type                     = "egress"
@@ -185,7 +185,7 @@ resource "aws_security_group_rule" "egress_hbase_endpoint" {
 }
 
 resource "aws_security_group_rule" "ingress_hbase_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow Hbase UI to be reached by nginx reverse proxy container"
   type                     = "ingress"
@@ -198,7 +198,7 @@ resource "aws_security_group_rule" "ingress_hbase_endpoint" {
 }
 
 resource "aws_security_group_rule" "egress_nm_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow nginx reverse proxy container to reach Yarn NodeManager UI"
   type                     = "egress"
@@ -210,7 +210,7 @@ resource "aws_security_group_rule" "egress_nm_endpoint" {
 }
 
 resource "aws_security_group_rule" "ingress_nm_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow Yarn NodeManager UI to be reached by nginx reverse proxy container"
   type                     = "ingress"
@@ -223,7 +223,7 @@ resource "aws_security_group_rule" "ingress_nm_endpoint" {
 }
 
 resource "aws_security_group_rule" "egress_rm_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow nginx reverse proxy container to reach Yarn ResourceManager UI"
   type                     = "egress"
@@ -235,7 +235,7 @@ resource "aws_security_group_rule" "egress_rm_endpoint" {
 }
 
 resource "aws_security_group_rule" "ingress_rm_endpoint" {
-  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0]]
+  depends_on               = [aws_vpc_peering_connection_accepter.reverse_proxy_ingest[0], aws_vpc_peering_connection_accepter.reverse_proxy_internal_compute[0]]
   count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow Yarn ResourceManager UI to be reached by nginx reverse proxy container"
   type                     = "ingress"
