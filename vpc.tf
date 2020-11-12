@@ -175,14 +175,6 @@ resource "aws_route" "reverse_proxy_to_ingest" {
   vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
 }
 
-resource "aws_route" "ingest_to_reverse_proxy" {
-  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  route_table_id            = data.terraform_remote_state.ingest.outputs.emr_route_table.id
-  destination_cidr_block    = module.vpc.vpc.cidr_block
-  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
-  provider                  = aws.target
-}
-
 resource "aws_vpc_peering_connection_accepter" "reverse_proxy_ingest" {
   count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
@@ -223,9 +215,17 @@ resource "aws_route" "internal_compute_to_reverse_proxy" {
   provider                  = aws.target
 }
 
+resource "aws_route" "ingest_to_reverse_proxy" {
+  count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+  route_table_id            = data.terraform_remote_state.internal_compute.outputs.hbase_emr_route_table.id
+  destination_cidr_block    = module.vpc.vpc.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy_internal_compute[0].id
+  provider                  = aws.target
+}
+
 resource "aws_vpc_peering_connection_accepter" "reverse_proxy_internal_compute" {
   count                     = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy[0].id
+  vpc_peering_connection_id = aws_vpc_peering_connection.reverse_proxy_internal_compute[0].id
   auto_accept               = true
 
   tags = merge(
