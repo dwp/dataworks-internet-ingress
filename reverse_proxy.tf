@@ -140,7 +140,7 @@
 //  from_port                = 80
 //  to_port                  = 80
 //  protocol                 = "tcp"
-//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
 //}
 //
@@ -153,7 +153,7 @@
 //  to_port                  = 80
 //  protocol                 = "tcp"
 //  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
-//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  provider                 = aws.target
 //}
 //
@@ -165,7 +165,7 @@
 //  from_port                = 16010
 //  to_port                  = 16010
 //  protocol                 = "tcp"
-//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
 //}
 //
@@ -178,7 +178,7 @@
 //  to_port                  = 16010
 //  protocol                 = "tcp"
 //  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
-//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  provider                 = aws.target
 //}
 //
@@ -190,7 +190,7 @@
 //  from_port                = 8042
 //  to_port                  = 8042
 //  protocol                 = "tcp"
-//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
 //}
 //
@@ -203,7 +203,7 @@
 //  to_port                  = 8042
 //  protocol                 = "tcp"
 //  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
-//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  provider                 = aws.target
 //}
 //
@@ -215,7 +215,7 @@
 //  from_port                = 8088
 //  to_port                  = 8088
 //  protocol                 = "tcp"
-//  source_security_group_id = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  source_security_group_id = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  security_group_id        = aws_security_group.reverse_proxy_instance[0].id
 //}
 //
@@ -228,7 +228,7 @@
 //  to_port                  = 8088
 //  protocol                 = "tcp"
 //  source_security_group_id = aws_security_group.reverse_proxy_instance[0].id
-//  security_group_id        = data.terraform_remote_state.ingest.outputs.emr_common_sg.id
+//  security_group_id        = data.terraform_remote_state.internal_compute.outputs.aws_emr_cluster.common_sg_id
 //  provider                 = aws.target
 //}
 //
