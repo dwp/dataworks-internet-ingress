@@ -1,7 +1,7 @@
 data "aws_instances" "target_instance" {
   count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   instance_tags = {
-    "Name"                                     = "ingest-hbase",
+    "ShortName"                                     = "ingest-hbase",
     "aws:elasticmapreduce:instance-group-role" = "MASTER"
   }
   provider = aws.target
