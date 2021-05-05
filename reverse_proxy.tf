@@ -93,7 +93,7 @@
 //resource "aws_iam_role_policy_attachment" "reverse_proxy_ssm_role" {
 //  count      = local.reverse_proxy_enabled[local.environment] ? 1 : 0
 //  role       = aws_iam_role.reverse_proxy[0].name
-//  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonSSMManagedInstanceCore"
+//  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 //}
 //
 //resource "aws_iam_role_policy_attachment" "reverse_proxy_cw_role" {
