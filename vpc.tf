@@ -156,7 +156,7 @@ resource "aws_security_group" "internet_proxy_endpoint" {
 
 resource "aws_vpc_endpoint" "internet_proxy" {
   vpc_id              = module.vpc.vpc.id
-  service_name        = aws_vpc_endpoint_service.internet_proxy_service.service_name
+  service_name        = data.aws_vpc_endpoint_service.internet_proxy_service.service_name
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.internet_proxy_endpoint.id]
   subnet_ids          = aws_subnet.vpc_endpoint.*.id
