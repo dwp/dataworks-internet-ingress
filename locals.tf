@@ -47,4 +47,13 @@ locals {
 
   ecs_nginx_rp_config_s3_main_prefix = "reverse-proxy"
 
+  deploy_ithc_infra = {
+    development    = false
+    qa             = false
+    integration    = false
+    preprod        = false
+    production     = false
+    management     = false
+    management-dev = false
+  }
 }
