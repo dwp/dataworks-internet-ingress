@@ -21,6 +21,13 @@ module "vpc" {
   ]
 }
 
+data "aws_vpc_endpoint_service" "internet_proxy_service" {
+  filter {
+    name   = "tag:Name"
+    values = ["internet_proxy"]
+  }
+}
+
 resource "aws_subnet" "vpc_endpoint" {
   count             = length(data.aws_availability_zones.available.names)
   cidr_block        = cidrsubnet(module.vpc.vpc.cidr_block, 4, count.index)
@@ -149,7 +156,7 @@ resource "aws_security_group" "internet_proxy_endpoint" {
 
 resource "aws_vpc_endpoint" "internet_proxy" {
   vpc_id              = module.vpc.vpc.id
-  service_name        = data.terraform_remote_state.internet_egress.outputs.internet_proxy_service.service_name
+  service_name        = data.aws_vpc_endpoint_service.internet_proxy_service.service_name
   vpc_endpoint_type   = "Interface"
   security_group_ids  = [aws_security_group.internet_proxy_endpoint.id]
   subnet_ids          = aws_subnet.vpc_endpoint.*.id
