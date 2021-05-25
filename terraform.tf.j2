@@ -105,7 +105,7 @@ provider "aws" {
   alias   = "ssh_bastion"
 
   assume_role {
-    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
+    role_arn = "arn:aws:iam::${local.account[local.environment]}:role/${var.assume_role}"
   }
 }
 
