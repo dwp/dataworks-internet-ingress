@@ -1,6 +1,7 @@
 output "reverse_proxy" {
   value = {
-    sg = local.reverse_proxy_enabled[local.environment] ? aws_security_group.reverse_proxy_ecs[0].id : 0
+    sg           = local.reverse_proxy_enabled[local.environment] ? aws_security_group.reverse_proxy_ecs[0].id : 0
+    route_table  = aws_route_table.reverse_proxy_private
   }
 }
 
