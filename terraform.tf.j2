@@ -99,6 +99,16 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  version = "~> 3.0.0"
+  region  = var.region
+  alias   = "ssh_bastion"
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.account[local.management_account[local.environment]]}:role/${var.assume_role}"
+  }
+}
+
 locals {
   name        = "dataworks-internet-ingress"
   environment = terraform.workspace == "default" ? "management-dev" : terraform.workspace
