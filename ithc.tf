@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "kali_allow_ssh_ingress" {
   to_port                  = 22
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.ssh_bastion.0.id
-  security_group_id        = aws_security_group.kali.0.id
+  security_group_id        = data.terraform_remote_state.management.outputs.security_groups.kali.id
 }
 
 resource "aws_security_group_rule" "ssh_bastion_allow_ssh_egress" {
