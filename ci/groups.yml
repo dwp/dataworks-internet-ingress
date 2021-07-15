@@ -3,6 +3,11 @@ groups:
     jobs:
       - management-dev
       - management
+
   - name: pull-request
     jobs:
       - pull-request
+      
+  - name: update-pipeline
+    jobs:
+      - update-pipeline
