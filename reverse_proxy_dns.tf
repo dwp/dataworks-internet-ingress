@@ -1,42 +1,45 @@
-resource "aws_acm_certificate" "reverse_proxy" {
-  # This depends_on exists to work around a problem with ordering that is
-  # fixed in AWS Provider v3.0.0.
-  depends_on = [aws_route53_record.reverse_proxy_hbase_ui,
-    aws_route53_record.reverse_proxy_ganglia_ui,
-    aws_route53_record.reverse_proxy_nm_ui,
-    aws_route53_record.reverse_proxy_rm_ui
-  ]
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  domain_name       = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
-  validation_method = "DNS"
+# COMMENTED - THIS IS NOT USED AND CERT RENEWAL & VALIDATION DOES NOT WORK BECAUSE IT IS NOT USED
+# Work to enforce HTTPS is covered by DW-9398
 
-  subject_alternative_names = [
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
-    "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
-    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
-    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
-    "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
-    "nm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
-    "rm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
-  ]
+# resource "aws_acm_certificate" "reverse_proxy" {
+#   # This depends_on exists to work around a problem with ordering that is
+#   # fixed in AWS Provider v3.0.0.
+#   depends_on = [aws_route53_record.reverse_proxy_hbase_ui,
+#     aws_route53_record.reverse_proxy_ganglia_ui,
+#     aws_route53_record.reverse_proxy_nm_ui,
+#     aws_route53_record.reverse_proxy_rm_ui
+#   ]
+#   count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
+#   domain_name       = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
+#   validation_method = "DNS"
 
-  tags = merge(
-    local.common_tags,
-    { Name = "reverse-proxy",
-    Environment = local.environment },
-  )
+#   subject_alternative_names = [
+#     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
+#     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
+#     "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
+#     "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}",
+#     "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}",
+#     "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}",
+#     "nm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+#     "rm.ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}",
+#   ]
+
+#   tags = merge(
+#     local.common_tags,
+#     { Name = "reverse-proxy",
+#     Environment = local.environment },
+#   )
 
 
-  lifecycle {
-    ignore_changes = [subject_alternative_names]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [subject_alternative_names]
+#   }
+# }
 
-resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
-  certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
-  validation_record_fqdns = [for record in aws_route53_record.reverse_proxy_alb_cert_validation_record : record.fqdn]
-}
+# resource "aws_acm_certificate_validation" "reverse_proxy_cert_validation" {
+#   certificate_arn = aws_acm_certificate.reverse_proxy[0].arn
+#   validation_record_fqdns = [for record in aws_route53_record.reverse_proxy_alb_cert_validation_record : record.fqdn]
+# }
 
 resource "aws_route53_record" "reverse_proxy_alb" {
   count   = local.reverse_proxy_enabled[local.environment] ? 1 : 0
@@ -53,22 +56,22 @@ resource "aws_route53_record" "reverse_proxy_alb" {
   provider = aws.management_dns
 }
 
-resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
-  for_each = {
-    for dvo in aws_acm_certificate.reverse_proxy[0].domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.reverse_proxy[0].domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  name     = each.value.name
-  type     = each.value.type
-  records  = [each.value.record]
-  ttl      = 60
-  zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-  provider = aws.management_dns
-}
+#   name     = each.value.name
+#   type     = each.value.type
+#   records  = [each.value.record]
+#   ttl      = 60
+#   zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+#   provider = aws.management_dns
+# }
 
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
   count   = local.reverse_proxy_enabled[local.environment] ? length(data.aws_instances.target_instance[0].private_ips) : 0
