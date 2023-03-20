@@ -109,7 +109,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
       },
       {
         "name": "NGINX_CONFIG_S3_KEY",
-        "value": "${aws_s3_bucket_object.nginx_config[0].key}"
+        "value": "${aws_s3_object.nginx_config[0].key}"
       }
     ]
   }
@@ -223,7 +223,7 @@ resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
   security_group_id = aws_security_group.reverse_proxy_ecs[0].id
 }
 
-resource "aws_s3_bucket_object" "nginx_config" {
+resource "aws_s3_object" "nginx_config" {
   count      = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id
   key        = "${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files[0].output_md5}.zip"
