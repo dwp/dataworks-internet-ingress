@@ -141,7 +141,11 @@ locals {
     {%- endfor %}
   }
 
-  team_cidr_block = "{{ucfs.team_cidr_block}}"
+  team_cidr_blocks = [
+    "{{ucfs.team_cidr_block}}",
+    "{{ucfs.bt_cidr_block}}",
+    "{{ucfs.expoe_cidr_block}}"
+  ]
 
   common_tags = {
     Name         = local.name

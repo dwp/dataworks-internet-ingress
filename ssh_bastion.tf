@@ -17,7 +17,7 @@ resource "aws_security_group_rule" "bastion_ssh_ingress" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = concat(local.ssh_bastion_whitelisted_ranges, [local.team_cidr_block])
+  cidr_blocks       = concat(local.ssh_bastion_whitelisted_ranges, local.team_cidr_blocks)
   security_group_id = aws_security_group.ssh_bastion.0.id
 }
 

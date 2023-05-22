@@ -89,7 +89,7 @@ resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
   protocol          = "tcp"
   from_port         = "80"
   to_port           = "80"
-  cidr_blocks       = [local.team_cidr_block]
+  cidr_blocks       = local.team_cidr_blocks
   security_group_id = aws_security_group.reverse_proxy_lb[0].id
 }
 
