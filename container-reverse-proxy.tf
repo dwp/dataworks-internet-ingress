@@ -209,9 +209,9 @@ resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
 
 resource "aws_s3_object" "nginx_config" {
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id
-  key        = "${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files[0].output_md5}.zip"
+  key        = "${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files.output_md5}.zip"
   kms_key_id = data.terraform_remote_state.management.outputs.config_bucket.cmk_arn
-  source     = data.archive_file.nginx_config_files[0].output_path
+  source     = data.archive_file.nginx_config_files.output_path
 }
 
 data "archive_file" "nginx_config_files" {

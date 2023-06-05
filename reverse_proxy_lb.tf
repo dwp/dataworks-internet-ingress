@@ -1,11 +1,10 @@
 resource "aws_alb" "reverse_proxy" {
-  count              = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name               = "reverse-proxy"
   internal           = false
   load_balancer_type = "application"
   subnets            = aws_subnet.reverse_proxy_public.*.id
   depends_on         = [aws_internet_gateway.igw]
-  security_groups    = [aws_security_group.reverse_proxy_lb[0].id]
+  security_groups    = [aws_security_group.reverse_proxy_lb.id]
 
   tags = merge(
     local.common_tags,
@@ -87,7 +86,7 @@ resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
   from_port         = "80"
   to_port           = "80"
   cidr_blocks       = local.team_cidr_blocks
-  security_group_id = aws_security_group.reverse_proxy_lb[0].id
+  security_group_id = aws_security_group.reverse_proxy_lb.id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_lb_http_egress_to_container" {
@@ -96,6 +95,6 @@ resource "aws_security_group_rule" "reverse_proxy_lb_http_egress_to_container" {
   protocol                 = "tcp"
   from_port                = "80"
   to_port                  = "80"
-  source_security_group_id = aws_security_group.reverse_proxy_ecs[0].id
-  security_group_id        = aws_security_group.reverse_proxy_lb[0].id
+  source_security_group_id = aws_security_group.reverse_proxy_ecs.id
+  security_group_id        = aws_security_group.reverse_proxy_lb.id
 }
