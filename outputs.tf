@@ -1,6 +1,6 @@
 output "reverse_proxy" {
   value = {
-    sg           = aws_security_group.reverse_proxy_ecs[0].id
+    sg           = aws_security_group.reverse_proxy_ecs.id
     route_table  = aws_route_table.reverse_proxy_private
   }
 }

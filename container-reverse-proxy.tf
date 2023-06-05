@@ -51,8 +51,8 @@ resource "aws_iam_role" "container_reverse_proxy" {
 }
 
 resource "aws_iam_role_policy" "container_reverse_proxy" {
-  policy = data.aws_iam_policy_document.container_reverse_proxy_read_config[0].json
-  role   = aws_iam_role.container_reverse_proxy[0].id
+  policy = data.aws_iam_policy_document.container_reverse_proxy_read_config.json
+  role   = aws_iam_role.container_reverse_proxy.id
 }
 
 resource "aws_cloudwatch_log_group" "reverse_proxy_ecs" {
@@ -144,7 +144,7 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.internet_proxy_endpoint.id
-  security_group_id        = aws_security_group.reverse_proxy_ecs[0].id
+  security_group_id        = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_security_group_rule" "ingress_internet_proxy" {
@@ -153,7 +153,7 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   from_port                = 3128
   to_port                  = 3128
   protocol                 = "tcp"
-  source_security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+  source_security_group_id = aws_security_group.reverse_proxy_ecs.id
   security_group_id        = aws_security_group.internet_proxy_endpoint.id
 }
 
@@ -164,7 +164,7 @@ resource "aws_security_group_rule" "reverse_proxy_http_ingress" {
   from_port         = "80"
   to_port           = "80"
   cidr_blocks       = [module.vpc.vpc.cidr_block]
-  security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+  security_group_id = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_http_egress" {
@@ -174,7 +174,7 @@ resource "aws_security_group_rule" "reverse_proxy_http_egress" {
   from_port                = "80"
   to_port                  = "80"
   source_security_group_id = module.vpc.interface_vpce_sg_id
-  security_group_id        = aws_security_group.reverse_proxy_ecs[0].id
+  security_group_id        = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
@@ -184,7 +184,7 @@ resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
   from_port                = "80"
   to_port                  = "80"
   security_group_id        = module.vpc.interface_vpce_sg_id
-  source_security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+  source_security_group_id = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
@@ -194,7 +194,7 @@ resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
   from_port         = "80"
   to_port           = "80"
   prefix_list_ids   = [module.vpc.prefix_list_ids.s3]
-  security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+  security_group_id = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
@@ -204,7 +204,7 @@ resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
   from_port         = "443"
   to_port           = "443"
   prefix_list_ids   = [module.vpc.prefix_list_ids.s3]
-  security_group_id = aws_security_group.reverse_proxy_ecs[0].id
+  security_group_id = aws_security_group.reverse_proxy_ecs.id
 }
 
 resource "aws_s3_object" "nginx_config" {
@@ -227,36 +227,36 @@ data "archive_file" "nginx_config_files" {
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/ganglia.conf.tpl", {
-      target_ip_1     = data.aws_instances.target_instance[0].private_ips[0]
+      target_ip_1     = data.aws_instances.target_instance.private_ips[0]
       target_domain_1 = "ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}"
-      target_ip_2     = data.aws_instances.target_instance[0].private_ips[1]
+      target_ip_2     = data.aws_instances.target_instance.private_ips[1]
       target_domain_2 = "ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}"
-      target_ip_3     = data.aws_instances.target_instance[0].private_ips[2]
+      target_ip_3     = data.aws_instances.target_instance.private_ips[2]
       target_domain_3 = "ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}"
     })
     filename = "conf.d/ganglia.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/hbase.conf.tpl", {
-      target_ip_1     = data.aws_instances.target_instance[0].private_ips[0]
+      target_ip_1     = data.aws_instances.target_instance.private_ips[0]
       target_domain_1 = "ui.ingest-hbase${local.target_env[local.environment]}.master1.${local.fqdn}"
-      target_ip_2     = data.aws_instances.target_instance[0].private_ips[1]
+      target_ip_2     = data.aws_instances.target_instance.private_ips[1]
       target_domain_2 = "ui.ingest-hbase${local.target_env[local.environment]}.master2.${local.fqdn}"
-      target_ip_3     = data.aws_instances.target_instance[0].private_ips[2]
+      target_ip_3     = data.aws_instances.target_instance.private_ips[2]
       target_domain_3 = "ui.ingest-hbase${local.target_env[local.environment]}.master3.${local.fqdn}"
     })
     filename = "conf.d/hbase.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/nm.conf.tpl", {
-      target_ip     = data.aws_instances.target_instance[0].private_ips[0]
+      target_ip     = data.aws_instances.target_instance.private_ips[0]
       target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
     })
     filename = "conf.d/nm.conf"
   }
   source {
     content = templatefile("${path.module}/files/reverse_proxy/rm.conf.tpl", {
-      target_ip     = data.aws_instances.target_instance[0].private_ips[0]
+      target_ip     = data.aws_instances.target_instance.private_ips[0]
       target_domain = "ui.ingest-hbase${local.target_env[local.environment]}.${local.fqdn}"
     })
     filename = "conf.d/rm.conf"

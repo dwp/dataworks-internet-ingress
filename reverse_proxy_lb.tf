@@ -48,7 +48,6 @@ resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
 }
 
 resource "aws_lb_target_group" "reverse_proxy" {
-  count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name_prefix = "rp"
   port        = var.reverse_proxy_http_port
   protocol    = "HTTP"
@@ -71,7 +70,6 @@ resource "aws_lb_target_group" "reverse_proxy" {
 }
 
 resource "aws_security_group" "reverse_proxy_lb" {
-  count                  = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name                   = "reverse-proxy-lb"
   description            = "Reverse Proxy Load Balancer"
   vpc_id                 = module.vpc.vpc.id
@@ -83,7 +81,6 @@ resource "aws_security_group" "reverse_proxy_lb" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description       = "Reverse Proxy HTTP"
   type              = "ingress"
   protocol          = "tcp"
@@ -94,7 +91,6 @@ resource "aws_security_group_rule" "reverse_proxy_lb_http_ingress" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_lb_http_egress_to_container" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Reverse Proxy HTTP Rule"
   type                     = "egress"
   protocol                 = "tcp"
