@@ -1,5 +1,4 @@
 data "aws_instances" "target_instance" {
-  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   instance_tags = {
     "ShortName"                                     = "ingest-hbase",
     "aws:elasticmapreduce:instance-group-role" = "MASTER"
@@ -8,8 +7,6 @@ data "aws_instances" "target_instance" {
 }
 
 data "aws_iam_policy_document" "container_reverse_proxy_read_config" {
-  count = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-
   statement {
     effect = "Allow"
 
@@ -48,27 +45,23 @@ data "aws_iam_policy_document" "container_reverse_proxy_read_config" {
 }
 
 resource "aws_iam_role" "container_reverse_proxy" {
-  count              = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name               = "ReverseProxy"
   assume_role_policy = data.terraform_remote_state.management.outputs.ecs_assume_role_policy_json
   tags               = local.common_tags
 }
 
 resource "aws_iam_role_policy" "container_reverse_proxy" {
-  count  = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   policy = data.aws_iam_policy_document.container_reverse_proxy_read_config[0].json
   role   = aws_iam_role.container_reverse_proxy[0].id
 }
 
 resource "aws_cloudwatch_log_group" "reverse_proxy_ecs" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name              = "/aws/ecs/main/reverse-proxy"
   retention_in_days = 30
   tags              = local.common_tags
 }
 
 resource "aws_ecs_task_definition" "container_reverse_proxy" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   family                   = "nginx-s3"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -119,7 +112,6 @@ DEFINITION
 }
 
 resource "aws_ecs_service" "container_reverse_proxy" {
-  count           = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name            = local.ecs_nginx_rp_config_s3_main_prefix
   cluster         = data.terraform_remote_state.management.outputs.ecs_cluster_main.id
   task_definition = aws_ecs_task_definition.container_reverse_proxy[0].arn
@@ -139,7 +131,6 @@ resource "aws_ecs_service" "container_reverse_proxy" {
 }
 
 resource "aws_security_group" "reverse_proxy_ecs" {
-  count                  = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   name                   = "reverse-proxy-ecs"
   description            = "Reverse Proxy Container in ECS"
   vpc_id                 = module.vpc.vpc.id
@@ -147,7 +138,6 @@ resource "aws_security_group" "reverse_proxy_ecs" {
 }
 
 resource "aws_security_group_rule" "egress_internet_proxy" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow Internet access via the proxy for reverse proxy container"
   type                     = "egress"
   from_port                = 3128
@@ -158,7 +148,6 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
 }
 
 resource "aws_security_group_rule" "ingress_internet_proxy" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow proxy access from reverse proxy container"
   type                     = "ingress"
   from_port                = 3128
@@ -169,7 +158,6 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_http_ingress" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description       = "Reverse Proxy Container HTTP Rule"
   type              = "ingress"
   protocol          = "tcp"
@@ -180,7 +168,6 @@ resource "aws_security_group_rule" "reverse_proxy_http_ingress" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_http_egress" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow outbound requests to VPC endpoints (HTTP) from reverse-proxy container"
   type                     = "egress"
   protocol                 = "tcp"
@@ -191,7 +178,6 @@ resource "aws_security_group_rule" "reverse_proxy_http_egress" {
 }
 
 resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
-  count                    = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description              = "Allow inbound requests to VPC endpoints (HTTP) from reverse-proxy container"
   type                     = "ingress"
   protocol                 = "tcp"
@@ -202,7 +188,6 @@ resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description       = "Allow outbound requests to S3 PFL from reverse-proxy container"
   type              = "egress"
   protocol          = "tcp"
@@ -213,7 +198,6 @@ resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   description       = "Allow HTTPS outbound requests to S3 PFL from reverse-proxy container"
   type              = "egress"
   protocol          = "tcp"
@@ -224,7 +208,6 @@ resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
 }
 
 resource "aws_s3_object" "nginx_config" {
-  count      = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id
   key        = "${local.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files[0].output_md5}.zip"
   kms_key_id = data.terraform_remote_state.management.outputs.config_bucket.cmk_arn
@@ -232,7 +215,6 @@ resource "aws_s3_object" "nginx_config" {
 }
 
 data "archive_file" "nginx_config_files" {
-  count       = local.reverse_proxy_enabled[local.environment] ? 1 : 0
   type        = "zip"
   output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
   source {
