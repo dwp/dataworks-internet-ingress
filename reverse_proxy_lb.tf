@@ -13,8 +13,7 @@ resource "aws_alb" "reverse_proxy" {
 }
 
 resource "aws_lb_listener" "reverse_proxy_http" {
-  count             = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  load_balancer_arn = aws_alb.reverse_proxy[0].arn
+  load_balancer_arn = aws_alb.reverse_proxy.arn
   port              = 80
   protocol          = "HTTP"
   //  ssl_policy        = "ELBSecurityPolicy-2016-08"
@@ -23,7 +22,7 @@ resource "aws_lb_listener" "reverse_proxy_http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.reverse_proxy[0].arn
+    target_group_arn = aws_lb_target_group.reverse_proxy.arn
   }
 }
 

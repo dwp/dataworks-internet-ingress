@@ -48,8 +48,8 @@ resource "aws_route53_record" "reverse_proxy_alb" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy[0].dns_name
-    zone_id                = aws_alb.reverse_proxy[0].zone_id
+    name                   = aws_alb.reverse_proxy.dns_name
+    zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
   provider = aws.management_dns
@@ -73,30 +73,30 @@ resource "aws_route53_record" "reverse_proxy_alb" {
 # }
 
 resource "aws_route53_record" "reverse_proxy_hbase_ui" {
-  count   = length(data.aws_instances.target_instance[0].private_ips)
+  count   = length(data.aws_instances.target_instance.private_ips)
   name    = "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy[0].dns_name
-    zone_id                = aws_alb.reverse_proxy[0].zone_id
+    name                   = aws_alb.reverse_proxy.dns_name
+    zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
   provider = aws.management_dns
 }
 
 resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
-  count   = length(data.aws_instances.target_instance[0].private_ips)
+  count   = length(data.aws_instances.target_instance.private_ips)
   name    = "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
   type    = "A"
   zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy[0].dns_name
-    zone_id                = aws_alb.reverse_proxy[0].zone_id
+    name                   = aws_alb.reverse_proxy.arn
+    zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
   provider = aws.management_dns
@@ -108,8 +108,8 @@ resource "aws_route53_record" "reverse_proxy_nm_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy[0].dns_name
-    zone_id                = aws_alb.reverse_proxy[0].zone_id
+    name                   = aws_alb.reverse_proxy.dns_name
+    zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
   provider = aws.management_dns
@@ -122,8 +122,8 @@ resource "aws_route53_record" "reverse_proxy_rm_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy[0].dns_name
-    zone_id                = aws_alb.reverse_proxy[0].zone_id
+    name                   = aws_alb.reverse_proxy.dns_name
+    zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
   provider = aws.management_dns

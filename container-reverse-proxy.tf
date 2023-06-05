@@ -67,7 +67,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "512"
   memory                   = "4096"
-  task_role_arn            = aws_iam_role.container_reverse_proxy[0].arn
+  task_role_arn            = aws_iam_role.container_reverse_proxy.arn
   execution_role_arn       = data.terraform_remote_state.management.outputs.ecs_task_execution_role.arn
 
   container_definitions = <<DEFINITION
@@ -84,7 +84,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.reverse_proxy_ecs[0].name}",
+        "awslogs-group": "${aws_cloudwatch_log_group.reverse_proxy_ecs.name}",
         "awslogs-region": "${data.aws_region.current.name}",
         "awslogs-stream-prefix": "${local.ecs_nginx_rp_config_s3_main_prefix}"
       }
@@ -102,7 +102,7 @@ resource "aws_ecs_task_definition" "container_reverse_proxy" {
       },
       {
         "name": "NGINX_CONFIG_S3_KEY",
-        "value": "${aws_s3_object.nginx_config[0].key}"
+        "value": "${aws_s3_object.nginx_config.key}"
       }
     ]
   }
