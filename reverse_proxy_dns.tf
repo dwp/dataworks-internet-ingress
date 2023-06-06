@@ -95,7 +95,7 @@ resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.arn
+    name                   = aws_alb.reverse_proxy.dns_name
     zone_id                = aws_alb.reverse_proxy.zone_id
   }
 
