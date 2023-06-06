@@ -27,19 +27,18 @@ resource "aws_lb_listener" "reverse_proxy_http" {
 }
 
 resource "aws_lb_listener_rule" "reverse_proxy_ganglia" {
-  count        = local.reverse_proxy_enabled[local.environment] ? 1 : 0
-  listener_arn = aws_lb_listener.reverse_proxy_http[0].arn
+  listener_arn = aws_lb_listener.reverse_proxy_http.arn
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.reverse_proxy[0].arn
+    target_group_arn = aws_lb_target_group.reverse_proxy.arn
   }
   condition {
     host_header {
       values = [
         "${aws_route53_record.reverse_proxy_hbase_ui[0].name}.${local.fqdn}",
         "${aws_route53_record.reverse_proxy_ganglia_ui[0].name}.${local.fqdn}",
-        "${aws_route53_record.reverse_proxy_nm_ui[0].name}.${local.fqdn}",
-        "${aws_route53_record.reverse_proxy_rm_ui[0].name}.${local.fqdn}",
+        "${aws_route53_record.reverse_proxy_nm_ui.name}.${local.fqdn}",
+        "${aws_route53_record.reverse_proxy_rm_ui.name}.${local.fqdn}",
       ]
     }
   }

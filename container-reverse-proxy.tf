@@ -114,17 +114,17 @@ DEFINITION
 resource "aws_ecs_service" "container_reverse_proxy" {
   name            = local.ecs_nginx_rp_config_s3_main_prefix
   cluster         = data.terraform_remote_state.management.outputs.ecs_cluster_main.id
-  task_definition = aws_ecs_task_definition.container_reverse_proxy[0].arn
+  task_definition = aws_ecs_task_definition.container_reverse_proxy.arn
   desired_count   = length(data.aws_availability_zones.available.names)
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups = [aws_security_group.reverse_proxy_ecs[0].id]
+    security_groups = [aws_security_group.reverse_proxy_ecs.id]
     subnets         = aws_subnet.reverse_proxy_private.*.id
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.reverse_proxy[0].arn
+    target_group_arn = aws_lb_target_group.reverse_proxy.arn
     container_name   = "nginx-s3"
     container_port   = var.reverse_proxy_http_port
   }
