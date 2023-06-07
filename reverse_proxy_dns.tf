@@ -48,8 +48,8 @@ resource "aws_route53_record" "reverse_proxy_alb" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
+    name                   = module.reverse_proxy.reverse_proxy_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_zone_id
   }
 
   provider = aws.management_dns
@@ -80,8 +80,8 @@ resource "aws_route53_record" "reverse_proxy_hbase_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
+    name                   = module.reverse_proxy.reverse_proxy_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_zone_id
   }
 
   provider = aws.management_dns
@@ -95,8 +95,8 @@ resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
+    name                   = module.reverse_proxy.reverse_proxy_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_zone_id
   }
 
   provider = aws.management_dns
@@ -108,8 +108,8 @@ resource "aws_route53_record" "reverse_proxy_nm_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
+    name                   = module.reverse_proxy.reverse_proxy_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_zone_id
   }
 
   provider = aws.management_dns
@@ -122,8 +122,8 @@ resource "aws_route53_record" "reverse_proxy_rm_ui" {
 
   alias {
     evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
+    name                   = module.reverse_proxy.reverse_proxy_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_zone_id
   }
 
   provider = aws.management_dns
