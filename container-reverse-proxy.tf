@@ -21,11 +21,31 @@ module "reverse_proxy" {
   common_tags = local.common_tags
 }
 
-data "aws_instances" "target_instance" {
-  instance_tags = {
-    "ShortName"                                = "ingest-hbase",
-    "aws:elasticmapreduce:instance-group-role" = "MASTER"
+data "archive_file" "nginx_config_files" {
+  type        = "zip"
+  output_path = "${path.module}/files/reverse_proxy/nginx_conf.zip"
+  source {
+    content  = templatefile("${path.module}/files/reverse_proxy/nginx.conf.tpl", {})
+    filename = "nginx.conf"
   }
-  provider = aws.target
+  source {
+    content  = templatefile("${path.module}/files/reverse_proxy/default.conf.tpl", {})
+    filename = "conf.d/default.conf"
+  }
+  source {
+    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    filename = "conf.d/ganglia.conf"
+  }
+  source {
+    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    filename = "conf.d/hbase.conf"
+  }
+  source {
+    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    filename = "conf.d/nm.conf"
+  }
+  source {
+    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    filename = "conf.d/rm.conf"
+  }
 }
-
