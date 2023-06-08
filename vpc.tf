@@ -4,7 +4,7 @@ module "vpc" {
   vpc_name                                 = "internet-ingress"
   region                                   = var.region
   vpc_cidr_block                           = local.cidr_block[local.environment]["internet-ingress-vpc"]
-  interface_vpce_source_security_group_ids = []
+  interface_vpce_source_security_group_ids = concat([aws_security_group.reverse_proxy_ecs.id], local.ssh_bastion_enabled[local.environment] ? [aws_security_group.ssh_bastion[0].id] : [])
   interface_vpce_subnet_ids                = aws_subnet.vpc_endpoint.*.id
   gateway_vpce_route_table_ids             = aws_route_table.reverse_proxy_private.*.id
   aws_vpce_services = [
