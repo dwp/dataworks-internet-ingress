@@ -4,8 +4,8 @@ data "aws_secretsmanager_secret_version" "internet_ingress" {
 
 locals {
   mgmt_account_mapping = {
-    management-dev = "development"
-    management     = "production"
+    management-dev = ["development", "qa", "integration"]
+    management     = ["preprod", "production"]
   }
 
   reverse_proxy_ssmenabled = {
