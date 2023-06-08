@@ -58,3 +58,7 @@ variable "subnet_ids" {
 variable "vpc_id" {
   type = string
 }
+
+variable "nginx_entries" {
+    type = map(string)
+}
