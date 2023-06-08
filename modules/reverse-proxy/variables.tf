@@ -59,10 +59,6 @@ variable "vpc_id" {
   type = string
 }
 
-variable "nginx_entries" {
-    type = map(string)
-}
-
 variable "nginx_config_file_path" {
     type = string
 }

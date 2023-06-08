@@ -1,5 +1,5 @@
 module "reverse_proxy" {
-  source = "../modules/reverse_proxy"
+  source = "./modules/reverse-proxy"
 
   region                 = data.aws_region.current.name
   vpc_id                 = module.vpc.vpc.id
@@ -17,6 +17,8 @@ module "reverse_proxy" {
 
   reverse_proxy_image_url = "${local.account[local.environment]}.${module.vpc.ecr_dkr_domain_name}/nginx-s3:latest"
   reverse_proxy_http_port = var.reverse_proxy_http_port
+
+  nginx_config_file_path = data.archive_file.nginx_config_files.output_path
 
   common_tags = local.common_tags
 }
