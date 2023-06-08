@@ -133,5 +133,5 @@ resource "aws_s3_object" "nginx_config" {
   bucket     = data.terraform_remote_state.management.outputs.config_bucket.id
   key        = "${var.ecs_nginx_rp_config_s3_main_prefix}/nginx_conf_${data.archive_file.nginx_config_files.output_md5}.zip"
   kms_key_id = data.terraform_remote_state.management.outputs.config_bucket.cmk_arn
-  source     = data.archive_file.nginx_config_files.output_path
+  source     = var.nginx_config_file_path
 }

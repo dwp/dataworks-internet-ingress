@@ -1,27 +1,6 @@
-data "template_file" "hbase" {
-    template = "${file("${path.module}/files/hbase.conf.tpl")}"
-    vars = {
-        target_hbase_clusters = var.target_hbase_clusters
-    }
-}
-
-data "template_file" "node_manager" {
-    template = "${file("${path.module}/files/nm.conf.tpl")}"
-    vars = {
-        target_hbase_clusters = var.target_hbase_clusters
-    }
-}
-
-data "template_file" "resource_manager" {
-    template = "${file("${path.module}/files/rm.conf.tpl")}"
-    vars = {
-        target_hbase_clusters = var.target_hbase_clusters
-    }
-}
-
-data "template_file" "ganglia" {
-    template = "${file("${path.module}/files/ganglia.conf.tpl")}"
-    vars = {
-        target_hbase_clusters = var.target_hbase_clusters
-    }
+locals {
+    hbase            = templatefile("${path.module}/files/hbase.conf.tpl", { target_hbase_clusters = var.target_hbase_clusters })
+    node_manager     = templatefile("${path.module}/files/nm.conf.tpl", { target_hbase_clusters = var.target_hbase_clusters })
+    resource_manager = templatefile("${path.module}/files/rm.conf.tpl", { target_hbase_clusters = var.target_hbase_clusters })
+    ganglia          = templatefile("${path.module}/files/ganglia.conf.tpl", { target_hbase_clusters = var.target_hbase_clusters })
 }

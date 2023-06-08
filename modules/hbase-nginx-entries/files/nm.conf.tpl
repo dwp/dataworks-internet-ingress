@@ -1,12 +1,14 @@
+%{ for hbase_master in target_hbase_clusters ~}
 server {
     listen      80;
-    server_name nm.${target_domain};
+    server_name nm.ui.ingest-hbase${hbase_master.domain};
 
     error_log   /var/log/nginx/nm-ui.error.log debug;
     access_log  /var/log/nginx/nm-ui.access.log main;
 
     location / {
         proxy_set_header Host $host;
-        proxy_pass http://${target_ip}:8042;
+        proxy_pass http://${hbase_master.ip_address}:8042;
     }
 }
+%{ endfor ~}

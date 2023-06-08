@@ -34,8 +34,11 @@ locals {
   }
 
   target_env = {
-    management-dev = ".dev"
-    management     = ""
+    development = ".dev"
+    qa = ".qa"
+    integration = ".int"
+    preprod = ".preprod"
+    production = ""
   }
 
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"

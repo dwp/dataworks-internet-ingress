@@ -1,15 +1,15 @@
 output "hbase_nginx_config" {
-    value = data.template_file.hbase.rendered
+    value = local.hbase
 }
 
 output "node_manager_nginx_config" {
-    value = data.template_file.node_manager.rendered
+    value = local.node_manager
 }
 
 output "resource_manager_nginx_config" {
-    value = data.template_file.resource_manager.rendered
+    value = local.resource_manager
 }
 
 output "ganglia_nginx_config" {
-    value = data.template_file.ganglia.rendered
+    value = local.ganglia
 }
