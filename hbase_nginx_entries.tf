@@ -47,32 +47,42 @@ locals {
   hbase_clusters = {
     development = [ 
       for i, ip in data.aws_instances.hbase_masters_development.private_ips: tomap({
-        ip_address = ip, 
-        domain = "${local.target_env["development"]}.master${i + 1}.${local.fqdn}"
+        ip_address = ip,
+        node_identifier = "master${i + 1}"
+        domain = local.fqdn
+        target_env = local.target_env["development"]
       }) 
     ]
     qa = [ 
       for i, ip in data.aws_instances.hbase_masters_qa.private_ips: tomap({
-        ip_address = ip, 
-        domain = "${local.target_env["qa"]}.master${i + 1}.${local.fqdn}"
+        ip_address = ip,
+        node_identifier = "master${i + 1}"
+        domain = local.fqdn
+        target_env = local.target_env["qa"]
       }) 
     ]
     integration = [ 
       for i, ip in data.aws_instances.hbase_masters_integration.private_ips: tomap({
-        ip_address = ip, 
-        domain = "${local.target_env["integration"]}.master${i + 1}.${local.fqdn}"
+        ip_address = ip,
+        node_identifier = "master${i + 1}"
+        domain = local.fqdn
+        target_env = local.target_env["integration"]
       })
     ]
     preprod = [ 
       for i, ip in data.aws_instances.hbase_masters_preprod.private_ips: tomap({
-        ip_address = ip, 
-        domain = "${local.target_env["preprod"]}.master${i + 1}.${local.fqdn}"
+        ip_address = ip,
+        node_identifier = "master${i + 1}"
+        domain = local.fqdn
+        target_env = local.target_env["preprod"]
       }) 
     ]
     production = [ 
       for i, ip in data.aws_instances.hbase_masters_production.private_ips: tomap({
-        ip_address = ip, 
-        domain = "${local.target_env["production"]}.master${i + 1}.${local.fqdn}"
+        ip_address = ip,
+        node_identifier = "master${i + 1}"
+        domain = local.fqdn
+        target_env = local.target_env["production"]
       }) 
     ]
   }
@@ -80,10 +90,100 @@ locals {
   target_hbase_clusters = flatten([ 
     for environment, cluster in local.hbase_clusters: cluster if contains(local.mgmt_account_mapping[local.environment], environment) 
   ])
+
+  mapped_target_hbase_clusters = { for i, hc in local.target_hbase_clusters : i => hc }
 }
 
 module "hbase-nginx-entries" {
   source = "./modules/hbase-nginx-entries"
 
   target_hbase_clusters = local.target_hbase_clusters
+}
+
+output "target_hbase_clust" {
+  value = local.target_hbase_clusters
+}
+
+output "mapped_target_hbase_clust" {
+  value = local.mapped_target_hbase_clusters
+}
+
+resource "aws_route53_record" "reverse_proxy_alb" {
+  for_each = toset(local.mgmt_account_mapping[local.environment])
+
+  name    = "reverse-proxy-alb.ui.ingest-hbase${local.target_env[each.value]}"
+  type    = "A"
+  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+
+  alias {
+    evaluate_target_health = true
+    name                   = module.reverse_proxy.reverse_proxy_alb_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_alb_zone_id
+  }
+
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_hbase_ui" {
+  for_each = local.mapped_target_hbase_clusters
+
+  name    = "hbase.ui.ingest-hbase${each.value.target_env}.${each.value.node_identifier}"
+  type    = "A"
+  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+
+  alias {
+    evaluate_target_health = true
+    name                   = module.reverse_proxy.reverse_proxy_alb_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_alb_zone_id
+  }
+
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
+  for_each = local.mapped_target_hbase_clusters
+
+  name    = "ganglia.ui.ingest-hbase${each.value.target_env}.${each.value.node_identifier}"
+  type    = "A"
+  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+
+  alias {
+    evaluate_target_health = true
+    name                   = module.reverse_proxy.reverse_proxy_alb_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_alb_zone_id
+  }
+
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_nm_ui" {
+  for_each = toset(local.mgmt_account_mapping[local.environment])
+
+  name    = "nm.ui.ingest-hbase${local.target_env[each.value]}"
+  type    = "A"
+  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+
+  alias {
+    evaluate_target_health = true
+    name                   = module.reverse_proxy.reverse_proxy_alb_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_alb_zone_id
+  }
+
+  provider = aws.management_dns
+}
+
+resource "aws_route53_record" "reverse_proxy_rm_ui" {
+  for_each = toset(local.mgmt_account_mapping[local.environment])
+
+  name    = "rm.ui.ingest-hbase${local.target_env[each.value]}"
+  type    = "A"
+  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
+
+  alias {
+    evaluate_target_health = true
+    name                   = module.reverse_proxy.reverse_proxy_alb_dns_name
+    zone_id                = module.reverse_proxy.reverse_proxy_alb_zone_id
+  }
+
+  provider = aws.management_dns
 }
