@@ -100,14 +100,6 @@ module "hbase-nginx-entries" {
   target_hbase_clusters = local.target_hbase_clusters
 }
 
-output "target_hbase_clust" {
-  value = local.target_hbase_clusters
-}
-
-output "mapped_target_hbase_clust" {
-  value = local.mapped_target_hbase_clusters
-}
-
 resource "aws_route53_record" "reverse_proxy_alb" {
   for_each = toset(local.mgmt_account_mapping[local.environment])
 

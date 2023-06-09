@@ -82,7 +82,3 @@ variable "team_cidr_blocks" {
 variable "reverse_proxy_alb_subnets" {
   type = list(string)
 }
-
-variable "reverse_proxy_forwarding_targets" {
-  type = list(string)
-}

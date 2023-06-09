@@ -25,19 +25,6 @@ resource "aws_lb_listener" "reverse_proxy_http" {
   }
 }
 
-resource "aws_lb_listener_rule" "reverse_proxy" {
-  listener_arn = aws_lb_listener.reverse_proxy_http.arn
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.reverse_proxy.arn
-  }
-  condition {
-    host_header {
-      values = var.reverse_proxy_forwarding_targets
-    }
-  }
-}
-
 resource "aws_lb_target_group" "reverse_proxy" {
   name_prefix = "rp"
   port        = var.reverse_proxy_http_port

@@ -27,13 +27,6 @@ module "reverse_proxy" {
 
   reverse_proxy_alb_subnets = aws_subnet.reverse_proxy_public.*.id
 
-  reverse_proxy_forwarding_targets = [
-    "${aws_route53_record.reverse_proxy_hbase_ui[0].name}.${local.fqdn}",
-    "${aws_route53_record.reverse_proxy_ganglia_ui[0].name}.${local.fqdn}",
-    "${aws_route53_record.reverse_proxy_nm_ui.name}.${local.fqdn}",
-    "${aws_route53_record.reverse_proxy_rm_ui.name}.${local.fqdn}",
-  ]
-
   common_tags = local.common_tags
 }
 
