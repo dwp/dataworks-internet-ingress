@@ -60,5 +60,29 @@ variable "vpc_id" {
 }
 
 variable "nginx_config_file_path" {
-    type = string
+  type = string
+}
+
+variable "nginx_config_md5" {
+  type = string
+}
+
+variable "nginx_config_bucket" {
+  type = string
+}
+
+variable "nginx_config_bucket_cmk_arn" {
+  type = string
+}
+
+variable "team_cidr_blocks" {
+  type = list(string)
+}
+
+variable "reverse_proxy_alb_subnets" {
+  type = list(string)
+}
+
+variable "reverse_proxy_forwarding_targets" {
+  type = list(string)
 }

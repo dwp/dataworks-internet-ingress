@@ -18,7 +18,21 @@ module "reverse_proxy" {
   reverse_proxy_image_url = "${local.account[local.environment]}.${module.vpc.ecr_dkr_domain_name}/nginx-s3:latest"
   reverse_proxy_http_port = var.reverse_proxy_http_port
 
-  nginx_config_file_path = data.archive_file.nginx_config_files.output_path
+  nginx_config_file_path      = data.archive_file.nginx_config_files.output_path
+  nginx_config_md5            = data.archive_file.nginx_config_files.output_md5
+  nginx_config_bucket         = data.terraform_remote_state.management.outputs.config_bucket.id
+  nginx_config_bucket_cmk_arn = data.terraform_remote_state.management.outputs.config_bucket.cmk_arn
+
+  team_cidr_blocks = local.team_cidr_blocks
+
+  reverse_proxy_alb_subnets = aws_subnet.reverse_proxy_public.*.id
+
+  reverse_proxy_forwarding_targets = [
+    "${aws_route53_record.reverse_proxy_hbase_ui[0].name}.${local.fqdn}",
+    "${aws_route53_record.reverse_proxy_ganglia_ui[0].name}.${local.fqdn}",
+    "${aws_route53_record.reverse_proxy_nm_ui.name}.${local.fqdn}",
+    "${aws_route53_record.reverse_proxy_rm_ui.name}.${local.fqdn}",
+  ]
 
   common_tags = local.common_tags
 }
@@ -39,15 +53,15 @@ data "archive_file" "nginx_config_files" {
     filename = "conf.d/ganglia.conf"
   }
   source {
-    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    content  = module.hbase-nginx-entries.hbase_nginx_config
     filename = "conf.d/hbase.conf"
   }
   source {
-    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    content  = module.hbase-nginx-entries.node_manager_nginx_config
     filename = "conf.d/nm.conf"
   }
   source {
-    content  = module.hbase-nginx-entries.ganglia_nginx_config
+    content  = module.hbase-nginx-entries.resource_manager_nginx_config
     filename = "conf.d/rm.conf"
   }
 }

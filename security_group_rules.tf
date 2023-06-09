@@ -5,7 +5,7 @@ resource "aws_security_group_rule" "egress_internet_proxy" {
   to_port                  = 3128
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.internet_proxy_endpoint.id
-  security_group_id        = module.reverse_proxy.reverse_proxy_ecs_id
+  security_group_id        = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
 
 resource "aws_security_group_rule" "ingress_internet_proxy" {
@@ -14,7 +14,7 @@ resource "aws_security_group_rule" "ingress_internet_proxy" {
   from_port                = 3128
   to_port                  = 3128
   protocol                 = "tcp"
-  source_security_group_id = module.reverse_proxy.reverse_proxy_ecs_id
+  source_security_group_id = module.reverse_proxy.reverse_proxy_ecs_sg_id
   security_group_id        = aws_security_group.internet_proxy_endpoint.id
 }
 
@@ -25,7 +25,7 @@ resource "aws_security_group_rule" "reverse_proxy_http_ingress" {
   from_port         = "80"
   to_port           = "80"
   cidr_blocks       = [module.vpc.vpc.cidr_block]
-  security_group_id = module.reverse_proxy.reverse_proxy_ecs_id
+  security_group_id = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_http_egress" {
@@ -35,7 +35,7 @@ resource "aws_security_group_rule" "reverse_proxy_http_egress" {
   from_port                = "80"
   to_port                  = "80"
   source_security_group_id = module.vpc.interface_vpce_sg_id
-  security_group_id        = module.reverse_proxy.reverse_proxy_ecs_id
+  security_group_id        = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
 
 resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
@@ -45,7 +45,7 @@ resource "aws_security_group_rule" "vpc_endpoint_http_egress" {
   from_port                = "80"
   to_port                  = "80"
   security_group_id        = module.vpc.interface_vpce_sg_id
-  source_security_group_id = module.reverse_proxy.reverse_proxy_ecs_id
+  source_security_group_id = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
@@ -55,7 +55,7 @@ resource "aws_security_group_rule" "reverse_proxy_s3_egress" {
   from_port         = "80"
   to_port           = "80"
   prefix_list_ids   = [module.vpc.prefix_list_ids.s3]
-  security_group_id = module.reverse_proxy.reverse_proxy_ecs_id
+  security_group_id = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
 
 resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
@@ -65,5 +65,5 @@ resource "aws_security_group_rule" "reverse_proxy_s3_https_egress" {
   from_port         = "443"
   to_port           = "443"
   prefix_list_ids   = [module.vpc.prefix_list_ids.s3]
-  security_group_id = module.reverse_proxy.reverse_proxy_ecs_id
+  security_group_id = module.reverse_proxy.reverse_proxy_ecs_sg_id
 }
