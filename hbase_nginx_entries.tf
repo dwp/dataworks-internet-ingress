@@ -44,6 +44,7 @@ data "aws_instances" "hbase_masters_production" {
 }
 
 locals {
+  # TODO: Replace Data lookups on instances with lookups on Load Balancers which will sit in front of the clusters. Below is workaround until these Load Balancers are deployed as part of EMR deployment.
   hbase_clusters = {
     development = [ 
       for i, ip in data.aws_instances.hbase_masters_development.private_ips: tomap({
@@ -87,6 +88,7 @@ locals {
     ]
   }
 
+  # Filtered list of HBase masters based upon whether they are lower environments or higher (live) environments
   target_hbase_clusters = flatten([ 
     for environment, cluster in local.hbase_clusters: cluster if contains(local.mgmt_account_mapping[local.environment], environment) 
   ])
