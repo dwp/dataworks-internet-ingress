@@ -12,7 +12,3 @@ server {
     }
 }
 %{ endfor ~}
-
-
-
-ganglia.ui.ingest-hbase.master1.dataworks.dwp.gov.uk
