@@ -41,20 +41,6 @@
 #   validation_record_fqdns = [for record in aws_route53_record.reverse_proxy_alb_cert_validation_record : record.fqdn]
 # }
 
-resource "aws_route53_record" "reverse_proxy_alb" {
-  name    = "reverse-proxy-alb.ui.ingest-hbase${local.target_env[local.environment]}"
-  type    = "A"
-  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-
-  alias {
-    evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
-  }
-
-  provider = aws.management_dns
-}
-
 # resource "aws_route53_record" "reverse_proxy_alb_cert_validation_record" {
 #   for_each = {
 #     for dvo in aws_acm_certificate.reverse_proxy[0].domain_validation_options : dvo.domain_name => {
@@ -71,60 +57,3 @@ resource "aws_route53_record" "reverse_proxy_alb" {
 #   zone_id  = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
 #   provider = aws.management_dns
 # }
-
-resource "aws_route53_record" "reverse_proxy_hbase_ui" {
-  count   = length(data.aws_instances.target_instance.private_ips)
-  name    = "hbase.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
-  type    = "A"
-  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-
-  alias {
-    evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
-  }
-
-  provider = aws.management_dns
-}
-
-resource "aws_route53_record" "reverse_proxy_ganglia_ui" {
-  count   = length(data.aws_instances.target_instance.private_ips)
-  name    = "ganglia.ui.ingest-hbase${local.target_env[local.environment]}.master${count.index + 1}"
-  type    = "A"
-  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-
-  alias {
-    evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
-  }
-
-  provider = aws.management_dns
-}
-resource "aws_route53_record" "reverse_proxy_nm_ui" {
-  name    = "nm.ui.ingest-hbase${local.target_env[local.environment]}"
-  type    = "A"
-  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-
-  alias {
-    evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
-  }
-
-  provider = aws.management_dns
-}
-
-resource "aws_route53_record" "reverse_proxy_rm_ui" {
-  name    = "rm.ui.ingest-hbase${local.target_env[local.environment]}"
-  type    = "A"
-  zone_id = data.terraform_remote_state.management_dns.outputs.dataworks_zone.id
-
-  alias {
-    evaluate_target_health = true
-    name                   = aws_alb.reverse_proxy.dns_name
-    zone_id                = aws_alb.reverse_proxy.zone_id
-  }
-
-  provider = aws.management_dns
-}

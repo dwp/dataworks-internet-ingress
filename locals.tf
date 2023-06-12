@@ -4,8 +4,8 @@ data "aws_secretsmanager_secret_version" "internet_ingress" {
 
 locals {
   mgmt_account_mapping = {
-    management-dev = "development"
-    management     = "production"
+    management-dev = ["development", "qa", "integration"]
+    management     = ["preprod", "production"]
   }
 
   reverse_proxy_ssmenabled = {
@@ -34,8 +34,11 @@ locals {
   }
 
   target_env = {
-    management-dev = ".dev"
-    management     = ""
+    development = ".dev"
+    qa = ".qa"
+    integration = ".int"
+    preprod = ".preprod"
+    production = ""
   }
 
   dw_domain = "${local.env_prefix[local.environment]}dataworks.dwp.gov.uk"
